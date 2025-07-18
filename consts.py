@@ -1,9 +1,19 @@
 from pathlib import Path
+from typing import Any
 
-
+# === 基础路径常量 ===
 MANIFEST_FILE_NAME: str = ".teaproject"
-PROJECTS_DIRECTORY: Path = Path("E:/Projects/DebugFolder")
 
+# === 默认配置模板 ===
+APP_CONFIG_TEMPLATE: dict[str, Any] = {
+    "LANGUAGE": "AUTO",  # 自动检测语言
+    "PROJECTS_DIRECTORY": str(
+        Path.home() / "Projects"
+    ),  # 用户主目录下的 Projects 文件夹
+}
+
+
+# === README 模板 ===
 README_TEMPLATE: str = """# {project_name}
 
 ## Description

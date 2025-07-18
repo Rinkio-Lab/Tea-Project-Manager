@@ -1,5 +1,4 @@
 import gettext
-import locale
 import argparse
 from pathlib import Path
 import shutil
@@ -10,32 +9,33 @@ from rich.traceback import install as install_rich_traceback
 
 from utils import *
 from consts import *
+from config_manager import *
 
 # 初始化 rich traceback
 install_rich_traceback(show_locals=True)
 console = Console()
 
-# 设置 i18n 语言
-LANGUAGE = "zh_CN"
+# 支持的语言
+SUPPORTED_LANGUAGES = ["zh_CN", "en_US", "ja_JP"]
 
-if LANGUAGE == "AUTO":
-    LANGUAGE = locale.getdefaultlocale()[0]
-    print(f"⚠ 自动检测语言: {LANGUAGE}")
+# 获取语言设置
+LANGUAGE = get_config_value("LANGUAGE", default="AUTO")
 
-# 确保 LANGUAGE 不是 None
-if LANGUAGE is None:
+# fallback
+if LANGUAGE not in SUPPORTED_LANGUAGES:
     LANGUAGE = "en_US"
 
 LOCALE_DIR = Path(__file__).parent / "locales"
 
+# 加载翻译
 try:
-    t = gettext.translation("messages", localedir=LOCALE_DIR, languages=[str(LANGUAGE)])
+    t = gettext.translation("messages", localedir=LOCALE_DIR, languages=[LANGUAGE])
     _ = t.gettext
 except FileNotFoundError:
     print("⚠ 翻译文件未找到，使用默认语言")
     _ = gettext.gettext
 
-
+# 支持的项目类型（i18n）
 SUPPORTED_PROJECT_TYPES: dict[str, str] = {
     "empty": _("project_type.empty"),
     "web": _("project_type.web"),
@@ -97,7 +97,7 @@ def initial_project_template(project_path: Path, project_type: str) -> None:
             case "empty":
                 pass
             case _:
-                console.print(_("warn.unsupported_type", type=project_type)) # type: ignore
+                console.print(_("warn.unsupported_type", type=project_type))  # type: ignore
                 return
 
         console.print(_("success.template_initialized"))
@@ -149,9 +149,7 @@ def main() -> None:
             console.print(f"[red]✘ {_('error.no_project_name')}[/red]")
             return
 
-        final_path = (
-            base_path / project_name if args.new else base_path
-        )
+        final_path = base_path / project_name if args.new else base_path
         description = (
             questionary.text(_("prompt.project_description")).ask()
             or "No description provided."
@@ -187,17 +185,6 @@ def main() -> None:
         if not project_type:
             console.print(f"[red]✘ {_('error.no_project_type')}[/red]")
             return
-
-        need_readme = questionary.confirm(_("prompt.need_readme")).ask()
-        project_path = create_project_dir(project_name)
-        initial_project_manifest(
-            project_path, project_name, project_type, description, need_readme
-        )
-        initial_project_template(project_path, project_type)
-        if need_readme:
-            initial_readme(project_path, project_name, description)
-            
-    print(_("success.processing_complete"))
 
 
 if __name__ == "__main__":
