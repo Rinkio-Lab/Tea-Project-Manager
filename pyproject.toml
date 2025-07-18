@@ -1,0 +1,11 @@
+[project]
+name = "tea-project-manager"
+version = "0.1.0"
+description = "A CLI tool for managing Python projects, including project creation, manifest management, and template handling."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0.2",
+    "questionary>=2.1.0",
+    "rich>=14.0.0",
+]

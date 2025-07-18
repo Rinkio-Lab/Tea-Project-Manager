@@ -1,0 +1,86 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "app.title"
+msgstr "Tea 项目管理器"
+
+msgid "app.byline"
+msgstr "来自 Rinkio Lab 的工具"
+
+msgid "prompt.project_name"
+msgstr "请输入项目名称："
+
+msgid "prompt.project_description"
+msgstr "请输入项目描述："
+
+msgid "prompt.need_readme"
+msgstr "是否需要 README 文件？"
+
+msgid "prompt.project_type"
+msgstr "请选择项目类型："
+
+msgid "error.no_project_name"
+msgstr "项目名称不能为空。"
+
+msgid "error.no_project_type"
+msgstr "你必须选择项目类型。"
+
+msgid "error.write_manifest_failed"
+msgstr "写入 Manifest 文件失败。"
+
+msgid "error.readme_failed"
+msgstr "创建 README 文件失败。"
+
+msgid "error.template_failed"
+msgstr "初始化模板失败。"
+
+msgid "success.manifest_written"
+msgstr "✔ Manifest 写入成功：{file}"
+
+msgid "success.readme_created"
+msgstr "✔ README.md 已创建。"
+
+msgid "success.template_initialized"
+msgstr "✔ 项目模板初始化完成。"
+
+msgid "success.next_steps"
+msgstr "下一步操作："
+
+msgid "success.project_done"
+msgstr "项目创建完成，祝你编码愉快！"
+
+msgid "warn.uv_missing"
+msgstr "未找到 uv，将使用最小模板。"
+
+msgid "warn.template_not_found"
+msgstr "模板目录未找到：{path}"
+
+msgid "warn.unsupported_type"
+msgstr "不支持的项目类型：{type}"
+
+msgid "info.uv_found"
+msgstr "已找到 uv"
+
+msgid "info.running_uv"
+msgstr "正在运行 uv init..."
+
+msgid "project_type.empty"
+msgstr "空项目"
+
+msgid "project_type.web"
+msgstr "Web 应用（*.html, *.css, *.js）"
+
+msgid "project_type.python"
+msgstr "Python 脚本 (*.py)"
+
+msgid "arg.path_help"
+msgstr "可选的创建路径，缺省为默认项目目录"
+
+msgid "arg.new_help"
+msgstr "是否在路径下新建子目录"
+
+msgid "success.processing_complete"
+msgstr "处理完成，程序将退出..."

@@ -1,0 +1,86 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "app.title"
+msgstr "Tea Project Manager"
+
+msgid "app.byline"
+msgstr "Tool by Rinkio Lab"
+
+msgid "prompt.project_name"
+msgstr "Enter the name of your project:"
+
+msgid "prompt.project_description"
+msgstr "Enter a brief description:"
+
+msgid "prompt.need_readme"
+msgstr "Do you need a README file?"
+
+msgid "prompt.project_type"
+msgstr "Select the type of your project:"
+
+msgid "error.no_project_name"
+msgstr "Project name cannot be empty."
+
+msgid "error.no_project_type"
+msgstr "You must select a project type."
+
+msgid "error.write_manifest_failed"
+msgstr "Failed to write manifest."
+
+msgid "error.readme_failed"
+msgstr "Failed to create README."
+
+msgid "error.template_failed"
+msgstr "Failed to initialize template."
+
+msgid "success.manifest_written"
+msgstr "✔ Manifest written to {file}"
+
+msgid "success.readme_created"
+msgstr "✔ README.md created."
+
+msgid "success.template_initialized"
+msgstr "✔ Project template initialized successfully."
+
+msgid "success.next_steps"
+msgstr "Next steps:"
+
+msgid "success.project_done"
+msgstr "Project setup is complete. Happy coding!"
+
+msgid "warn.uv_missing"
+msgstr "'uv' not found, falling back to minimal template."
+
+msgid "warn.template_not_found"
+msgstr "Template directory not found: {path}"
+
+msgid "warn.unsupported_type"
+msgstr "Unsupported project type: {type}"
+
+msgid "info.uv_found"
+msgstr "Found uv"
+
+msgid "info.running_uv"
+msgstr "Running uv init..."
+
+msgid "project_type.empty"
+msgstr "Empty Project"
+
+msgid "project_type.web"
+msgstr "Web Application (*.html, *.css, *.js)"
+
+msgid "project_type.python"
+msgstr "Python Script (*.py)"
+
+msgid "arg.path_help"
+msgstr "Optional project path. Defaults to system project folder"
+
+msgid "arg.new_help"
+msgstr "Whether to create a subdirectory under given path"
+
+msgid "success.processing_complete"
+msgstr "Processing complete, the program will exit..."

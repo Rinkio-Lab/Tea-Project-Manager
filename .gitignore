@@ -1,0 +1,65 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations (编译的mo文件，po文件通常需要保留)
+locales/**/LC_MESSAGES/*.mo
+
+# mypy
+.mypy_cache/
+
+# Virtual environments
+venv/
+.env/
+.envrc
+.venv/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# uv 相关
+.uv/
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.swp
+*.swo

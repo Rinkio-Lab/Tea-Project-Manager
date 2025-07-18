@@ -1,0 +1,87 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ja_JP\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+
+msgid "app.title"
+msgstr "Tea プロジェクトマネージャー"
+
+msgid "app.byline"
+msgstr "Rinkio Lab のツール"
+
+msgid "prompt.project_name"
+msgstr "プロジェクト名を入力してください："
+
+msgid "prompt.project_description"
+msgstr "簡単な説明を入力してください："
+
+msgid "prompt.need_readme"
+msgstr "README ファイルを作成しますか？"
+
+msgid "prompt.project_type"
+msgstr "プロジェクトの種類を選択してください："
+
+msgid "error.no_project_name"
+msgstr "プロジェクト名は必須です。"
+
+msgid "error.no_project_type"
+msgstr "プロジェクトの種類を選択する必要があります。"
+
+msgid "error.write_manifest_failed"
+msgstr "Manifest ファイルの書き込みに失敗しました。"
+
+msgid "error.readme_failed"
+msgstr "README ファイルの作成に失敗しました。"
+
+msgid "error.template_failed"
+msgstr "テンプレートの初期化に失敗しました。"
+
+msgid "success.manifest_written"
+msgstr "✔ Manifest を書き込みました：{file}"
+
+msgid "success.readme_created"
+msgstr "✔ README.md を作成しました。"
+
+msgid "success.template_initialized"
+msgstr "✔ プロジェクトテンプレートの初期化が完了しました。"
+
+msgid "success.next_steps"
+msgstr "次のステップ："
+
+msgid "success.project_done"
+msgstr "プロジェクトの準備が整いました。楽しいコーディングを！"
+
+msgid "warn.uv_missing"
+msgstr "'uv' が見つかりません。最小テンプレートを使用します。"
+
+msgid "warn.template_not_found"
+msgstr "テンプレートディレクトリが見つかりません：{path}"
+
+msgid "warn.unsupported_type"
+msgstr "サポートされていないプロジェクトタイプです：{type}"
+
+msgid "info.uv_found"
+msgstr "uv が見つかりました"
+
+msgid "info.running_uv"
+msgstr "uv init を実行中..."
+
+msgid "project_type.empty"
+msgstr "空のプロジェクト"
+
+msgid "project_type.web"
+msgstr "Web アプリケーション（*.html, *.css, *.js）"
+
+msgid "project_type.python"
+msgstr "Python スクリプト（*.py）"
+
+msgid "arg.path_help"
+msgstr "プロジェクト作成場所（省略時は既定のフォルダ）"
+
+msgid "arg.new_help"
+msgstr "新しいサブフォルダを作成するかどうか"
+
+msgid "success.processing_complete"
+msgstr "処理が完了し、プログラムは終了します..."
