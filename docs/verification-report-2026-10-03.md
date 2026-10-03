@@ -217,3 +217,56 @@ description/intent 均为具体事实（行数/技术栈/规模/日期），非�
 - 未做归档移动测试（本轮 ?archived=1 只读验证，无目录移动，无需移回）。
 - config.yaml 未改。
 
+---
+
+## 十一、批2/3/4 全量验收（2026-10-03 三轮）
+
+修复后从当前源码重建 `tea.exe`（GOCACHE 指工程内 .gocache）。gate：`go vet`=0、`go test ./...` scanner ok、`go build`=0、9 个 JS `node --check` 全 0、web 源 emoji 扫描 0、禁用词 0、外部 CDN 0（vendor 注释除外）。
+
+### 逐 feature 验收表
+
+| Feature | 结论 | 证据 |
+|---|---|---|
+| gate（vet/test/build/node-check/emoji/CDN） | ✅ | 均 exit=0 |
+| GET / / tokens.css / echarts | ✅ | 200 |
+| /api/settings 新字段 | ✅ | stale_months=6/resource_min_mb=50/resource_max_code_files=20/backup_keep=10/default_view=grid/config_extensions=[.teaproject,.tea,.teaproj]，全 snake_case |
+| /api/stats resource_count / Others 聚合 | ⚠️ | resource_count=8、Others=4 聚合正确；但仪表盘"资源型"统计卡显示 0（见问题 R4-5） |
+| projects 新字段覆盖 | ✅ | health_score/stale/resource_type/pinned/workspace_* 全项目存在；LyricEx health=73 stale=false |
+| ?month= 月过滤 | ✅ | 2026-10=5、2026-09=2；浏览器 chip"2025-08×"filtered=7 |
+| PUT pinned 排序 | ⚠️ | pinned 落盘正确、GET 读回 true；但 API 列表不把 pinned 提前（疑似前端排序，待浏览器确认） |
+| GET cover + 防穿越 | ✅ | Fast NCM Downloader/bilibili.png 200 image/png；`../`、`..\` 注入均 404 无泄漏 |
+| run SSE 契约 | ❌ | 后端发具名事件 `event: output/exit`+纯文本 data；前端 `es.onmessage` 只收默认事件且 `JSON.parse` 期望 `{line,exit_code}`——两端不匹配，浏览器命令回显不会出（问题 R4-1） |
+| backups 写盘 / 返回形状 | ⚠️ | `.tea-backups/<name>/<ts>.yaml` 落盘正确；但 GET 返回单对象 `{file,time,size}`，前端期望 `{versions:[]}` 或数组（问题 R4-2） |
+| export json/csv/md | ✅ | 均 200；csv 头 3 字节 EF BB BF = UTF-8 BOM |
+| archive→archived=1→restore | ✅（API） | 上轮已验；本轮未重复移动真实项目 |
+| DELETE 无 force 400 | ✅ | 上轮已验 |
+| autostart | ✅ | GET enabled=false；PUT true 注册表 `tea-pm` 出现（serve --tray）；PUT false 删除；已还原 false |
+| --tray | ✅ | 日志"[托盘] 进入托盘模式/图标已注册"、settings 200；托盘菜单 GUI 仅代码路径验证 |
+| config_extensions 归一化 | ⚠️ | .teaproject 恒首位、去重生效；但非法值 `.bad!!!` 未丢弃（问题 R4-6） |
+| config_extensions 读自定义文件 | ❌ | 临时目录放 .project/.teaproject/.tea/.tpm，目录被识别但未读 YAML（name 用目录名、status/lang 空）（问题 R4-7） |
+| Others 语言 | ✅ | 4 个项目 language=Others；index.json 66 条 |
+| 浏览器网格健康徽章/陈年横幅/缺依赖/封面 | ✅ | 10-health.png（横幅"48 个项目超 6 个月没动"） |
+| 陈年横幅→去看看 | ✅ | 11-stale-banner.png，filtered=48、chip 出现 |
+| 月筛选 chip | ✅ | 12-month-filter.png |
+| 仪表盘 5 卡 + 3 图 | ⚠️ | 19（见问题 R4-5 资源卡） |
+| 设置抽屉（皮肤/chips CRUD/自启/扩展名/备份/导出） | ✅ | 16-settings-r4.png |
+| PWA manifest + sw | ✅ | manifest.webmanifest 200、sw controlled |
+| Ctrl+K 命令面板 | ❌ | 全工程无 palette 代码、Ctrl+K 未绑定（问题 R4-4） |
+| 侧栏项目根/端口 | ✅ | 显示 E:\Projects / 8080（前轮残留已修） |
+
+### 问题清单（只记录，归属分片）
+- **R4-1【严重·前后端契约】run SSE 事件格式不匹配**：后端 `event: output/data:<纯文本>` + `event: exit/data:<code>`（server.go:852/857）；前端 project-detail.js:203 用 `es.onmessage` 且 `JSON.parse(ev.data).line/.exit_code`。具名事件不触发 onmessage，纯文本也不是 JSON。复现：详情点任一 commands 按钮，输出区无内容、不显示退出码。归属：后端 run 端点 + 前端 project-detail.js 双方。
+- **R4-2【中·前后端契约】/api/backups 返回形状**：后端返回单对象 `{file,time,size}`；前端 settings-panel.js:357 `r.versions||r` 期望数组，`arr.map` 会抛错。归属：后端 backups 列表端点。
+- **R4-3【中·后端 scanner】`.tea-backups` 被当项目扫入列表**：备份目录出现在列表首位（rel_path=.tea-backups），应像 `_`/隐藏目录一样跳过。归属：scanner.go。
+- **R4-4【缺·前端】Ctrl+K 命令面板未实现**：全工程无 palette 代码，按 Ctrl+K 无反应。归属：前端（批3 自称自测通过但代码缺失）。
+- **R4-5【轻·前后端】仪表盘"资源型"卡=0 但 stats resource_count=8**：前端统计卡未读 resource_count。归属：前端 dashboard.js。
+- **R4-6【轻·后端】config_extensions 归一化不丢弃非法值**：`.bad!!!` 保留在列表。归属：config.go。
+- **R4-7【中·后端】自定义扩展名项目不读 YAML**：放合法 `.project` YAML，项目名仍取目录名、字段空。归属：scanner 配置文件解析。
+
+### 还原确认
+- Learn Golang 临时 commands 块已删除；临时探测目录 `E:\Projects\ExtVerifyTmp\` 已删除；config_extensions 已还原默认。
+- autostart 注册表 `tea-pm` 已删（enabled=false）；无归档移动、无真删除。
+- `.tea-backups/Learn Golang/` 一份探测备份保留属正常备份产物。
+- `tea serve` 已停止。
+
+

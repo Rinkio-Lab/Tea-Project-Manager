@@ -86,6 +86,7 @@ Not lazy about: understanding the problem (read it fully and trace the real flow
 ### 2. 技术栈与目录约定
 
 - 后端 **Go + gin**；前端**原生 JS（零框架）**；图表用 vendored 的 `web/vendor/echarts/echarts.min.js`（本地，不走 CDN）。
+- **UI 禁用 emoji**：界面文案与图标一律不用彩色 emoji（🌙 ✅ 🚀 等）；状态/操作图标用内联 SVG 或中性文字符号（如 ✦ ⧈ ▶ ✕），保证亮/暗主题与高对比下一致。
 - 目录约定：Go 源码按惯例（`cmd/tea/` 或根 main.go + `internal/` 分 scanner / meta / server / exec）；前端在 `web/`（index.html + assets/styles/* + assets/scripts/*，样式文件加载顺序：tokens → base → layout → components → responsive，responsive 最后保证 @media 覆盖恒胜）。
 - Go 代码须符合 Go 惯例（错误处理、命名、包布局），中文注释适度解释「为什么」——本项目是用户练 Go 的载体，代码要可读可学。
 - 禁止引入不必要的依赖：能用标准库（os/exec、path/filepath、encoding/json）不用第三方；yaml 仅 `gopkg.in/yaml.v3`。
