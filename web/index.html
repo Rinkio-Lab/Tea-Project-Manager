@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tea PM · 项目管家</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/tea-pm-icon.svg">
 <link rel="stylesheet" href="assets/styles/tokens.css">
 <link rel="stylesheet" href="assets/styles/base.css">
 <link rel="stylesheet" href="assets/styles/layout.css">
@@ -30,9 +32,15 @@
 
     <div class="sidebar-section">
       <div class="sidebar-label">导航</div>
-      <button class="sidebar-btn" data-nav="grid"><span class="icon">▦</span><span class="label">网格</span></button>
-      <button class="sidebar-btn" data-nav="table"><span class="icon">☰</span><span class="label">表格</span></button>
-      <button class="sidebar-btn" data-nav="dashboard"><span class="icon">◔</span><span class="label">仪表盘</span></button>
+      <button class="sidebar-btn" data-nav="grid"><span class="icon" data-icon="grid"></span><span class="label">网格</span></button>
+      <button class="sidebar-btn" data-nav="table"><span class="icon" data-icon="list"></span><span class="label">表格</span></button>
+      <button class="sidebar-btn" data-nav="dashboard"><span class="icon" data-icon="dashboard"></span><span class="label">仪表盘</span></button>
+      <button class="sidebar-btn" id="settingsBtn"><span class="icon" data-icon="gear"></span><span class="label">设置</span></button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">置顶</div>
+      <div id="pinnedHost"></div>
     </div>
 
     <div class="sidebar-section">
@@ -40,9 +48,7 @@
       <div id="savedViewsHost"></div>
     </div>
 
-    <div class="sidebar-status" id="serverInfo">
-      <button class="sidebar-btn" id="settingsBtn" style="margin-bottom:8px"><span class="icon">⚙</span><span class="label">设置</span></button>
-    </div>
+    <div class="sidebar-status" id="serverInfo"></div>
   </aside>
 
   <!-- 主内容 -->
@@ -58,13 +64,13 @@
   <!-- 移动壳：顶栏 + 底部导航 -->
   <div class="mobile-topbar">
     <div class="sidebar-brand">Tea<span>PM</span></div>
-    <button class="ctrl-btn" id="settingsBtn2" title="设置">⚙</button>
+    <button class="ctrl-btn" id="settingsBtn2" title="设置" data-icon="gear"></button>
   </div>
   <div class="bottom-nav">
-    <button class="bottom-nav-slot" data-nav="grid"><span>▦</span><span class="nav-label">网格</span></button>
-    <button class="bottom-nav-slot" data-nav="table"><span>☰</span><span class="nav-label">表格</span></button>
-    <button class="bottom-nav-slot" data-nav="dashboard"><span>◔</span><span class="nav-label">仪表盘</span></button>
-    <button class="bottom-nav-slot" id="settingsBtn3"><span>⚙</span><span class="nav-label">设置</span></button>
+    <button class="bottom-nav-slot" data-nav="grid"><span data-icon="grid"></span><span class="nav-label">网格</span></button>
+    <button class="bottom-nav-slot" data-nav="table"><span data-icon="list"></span><span class="nav-label">表格</span></button>
+    <button class="bottom-nav-slot" data-nav="dashboard"><span data-icon="dashboard"></span><span class="nav-label">仪表盘</span></button>
+    <button class="bottom-nav-slot" id="settingsBtn3"><span data-icon="gear"></span><span class="nav-label">设置</span></button>
   </div>
 </div>
 
@@ -73,7 +79,7 @@
 <div class="settings-drawer" id="drawer">
   <div class="drawer-head">
     <h2>设置</h2>
-    <button class="ctrl-btn" id="drawerClose">✕</button>
+    <button class="ctrl-btn" id="drawerClose" data-icon="x"></button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </div>
@@ -88,6 +94,7 @@
         <tr><td><span class="keycap">g</span> <span class="keycap">g</span></td><td>网格视图</td></tr>
         <tr><td><span class="keycap">g</span> <span class="keycap">t</span></td><td>表格视图</td></tr>
         <tr><td><span class="keycap">g</span> <span class="keycap">d</span></td><td>仪表盘</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">s</span></td><td>打开设置</td></tr>
         <tr><td><span class="keycap">e</span></td><td>编辑当前项目</td></tr>
         <tr><td><span class="keycap">o</span></td><td>在终端打开</td></tr>
         <tr><td><span class="keycap">a</span></td><td>归档当前项目</td></tr>
@@ -114,7 +121,11 @@
 <script src="assets/scripts/ui/settings-panel.js"></script>
 
 <script>
-// 抽屉事件（简单 bootstrap）
+// 把所有 [data-icon] 占位符替换为内联 SVG
+document.querySelectorAll('[data-icon]').forEach(function (el) {
+  el.innerHTML = window.Lib.icon(el.dataset.icon);
+});
+// 抽屉事件
 document.getElementById('drawerClose').addEventListener('click', function () {
   window.SettingsPanel.close();
 });
@@ -136,6 +147,10 @@ document.querySelectorAll('.bottom-nav-slot[data-nav]').forEach(function (b) {
 });
 // 启动
 window.App.init();
+// PWA：仅 localhost 注册 SW，失败静默
+if ('serviceWorker' in navigator && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  navigator.serviceWorker.register('/sw.js').catch(function () {});
+}
 </script>
 </body>
 </html>

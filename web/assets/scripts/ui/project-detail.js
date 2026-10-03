@@ -1,7 +1,7 @@
 /* =========================================================
    ui/project-detail.js — 详情面板 = 可编辑控制台
    左卡片右面板；手写区/自动区视觉分隔；inline 编辑
-   Ctrl+S 保存 / Esc 取消；自动区 🔄 单字段重扫；AI ✦ 采纳/替换
+   Ctrl+S 保存 / Esc 取消；自动区单字段重扫；AI 采纳/替换（SVG 图标）
    ========================================================= */
 (function () {
     'use strict';
@@ -54,7 +54,7 @@
 
         host.innerHTML =
             '<div class="page-head">' +
-              '<button class="btn-secondary small" id="backBtn">← 返回列表</button>' +
+              '<button class="btn-secondary small" id="backBtn">返回列表</button>' +
               '<h1>' + Lib.esc(p.name) + '</h1>' +
               '<span class="status-pill ' + st.cls + '"><span class="dot"></span>' + st.word + '</span>' +
             '</div>' +
@@ -151,7 +151,7 @@
             else val = p[f.key] != null ? String(p[f.key]) : '—';
             return '<div class="field"><div class="field-label">' +
                 Lib.esc(f.label) +
-                '<button class="field-refresh" data-refresh="' + f.key + '" title="重扫此字段">🔄</button></div>' +
+                '<button class="field-refresh" data-refresh="' + f.key + '" title="重扫此字段">' + Lib.icon('refresh') + '</button></div>' +
                 '<div class="field-value readonly" data-key="' + f.key + '">' +
                 Lib.esc(val) + '</div></div>';
         }).join('');
@@ -163,7 +163,67 @@
               '<div class="field-group">' +
                 '<div class="field-group-title">自动区 · 扫描器维护</div>' +
                 '<div class="field-grid">' + auto + '</div>' +
-              '</div>';
+              '</div>' +
+              commandsHtml(p);
+    }
+
+    /* 常用命令区（变更 8） */
+    function commandsHtml(p) {
+        var cmds = p.commands || [];
+        if (!cmds.length) return '';
+        var buttons = cmds.map(function (c) {
+            var name = typeof c === 'string' ? c : c.name;
+            return '<button class="btn-secondary small cmd-btn" data-cmd="' +
+                Lib.esc(name) + '">' + Lib.esc(name) + '</button>';
+        }).join('');
+        return '<div class="field-group">' +
+            '<div class="field-group-title">命令 · .teaproject 里定义的快捷动作</div>' +
+            '<div class="cmd-buttons">' + buttons + '</div>' +
+            '<pre class="cmd-output" id="cmdOutput" hidden></pre>' +
+            '<button class="btn-secondary small" id="cmdTerminate" hidden>' + Lib.icon('x') + ' 终止</button>' +
+            '</div>';
+    }
+
+    function bindCommands(p) {
+        var output = document.getElementById('cmdOutput');
+        var termBtn = document.getElementById('cmdTerminate');
+        if (!output) return;
+        var es = null;
+        document.querySelectorAll('.cmd-btn').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+                var cmd = btn.dataset.cmd;
+                output.hidden = false;
+                termBtn.hidden = false;
+                output.textContent = '$ ' + cmd + '\n';
+                try {
+                    var r = await Api.run(p.name, cmd);
+                    var runId = r.run_id;
+                    if (typeof EventSource !== 'undefined') {
+                        es = new EventSource('/api/runs/' + encodeURIComponent(runId) + '/stream');
+                        es.onmessage = function (ev) {
+                            try {
+                                var d = JSON.parse(ev.data);
+                                if (d.line) { output.textContent += d.line + '\n'; }
+                                if (d.exit_code !== undefined) {
+                                    output.textContent += '\n[退出码 ' + d.exit_code + ']';
+                                    output.scrollTop = output.scrollHeight;
+                                    es.close(); termBtn.hidden = true;
+                                }
+                            } catch (_) { output.textContent += ev.data + '\n'; }
+                            output.scrollTop = output.scrollHeight;
+                        };
+                        es.onerror = function () { es.close(); termBtn.hidden = true; };
+                    }
+                    termBtn.onclick = function () {
+                        Api.terminate(runId).catch(function () {});
+                        if (es) es.close();
+                        termBtn.hidden = true;
+                    };
+                } catch (e) {
+                    output.textContent += '启动失败：' + e.message + '\n';
+                }
+            });
+        });
     }
 
     function fieldHtml(p, f, _auto) {
@@ -177,7 +237,7 @@
         }
         return '<div class="field' + (f.full ? ' full' : '') + '">' +
             '<div class="field-label">' + Lib.esc(f.label) +
-            (f.ai ? '<span class="ai-mark" title="AI 生成，待确认">✦</span>' : '') +
+            (f.ai ? '<span class="ai-mark" title="AI 生成，待确认">' + Lib.icon('sparkle') + '</span>' : '') +
             (aiMark ? '<span class="ai-actions">' +
                 '<button class="btn-secondary small" data-ai="adopt">采纳</button>' +
                 '<button class="btn-secondary small" data-ai="regen">替换</button>' +
@@ -189,6 +249,7 @@
 
     function bindFields(p) {
         var hint = document.getElementById('editHint');
+        bindCommands(p);
         document.querySelectorAll('.detail-panel .field-value[data-type]').forEach(function (el) {
             el.addEventListener('click', function () {
                 startEdit(p, el, hint);
@@ -207,7 +268,7 @@
                 var act = btn.dataset.ai;
                 if (act === 'adopt') {
                     Api.saveProject(p.name, { ai: false }).then(function () {
-                        Lib.toast('已采纳，✦ 标记清除', 'success');
+                        Lib.toast('已采纳，AI 标记清除', 'success');
                         render(p.name);
                     }).catch(function (err) { Lib.toast(err.message, 'error'); });
                 } else {

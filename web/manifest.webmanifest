@@ -1,0 +1,16 @@
+{
+  "name": "Tea PM",
+  "short_name": "TeaPM",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f2ed",
+  "theme_color": "#a89f91",
+  "icons": [
+    {
+      "src": "icons/tea-pm-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

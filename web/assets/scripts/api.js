@@ -81,6 +81,54 @@
         putSettings: function (body) {
             return Lib.request('/api/settings', { method: 'PUT', body: body });
         },
+
+        // POST /api/projects/:name/restore（取消归档）
+        restore: function (name) {
+            return Lib.request(
+                '/api/projects/' + encodeURIComponent(name) + '/restore',
+                { method: 'POST' }
+            );
+        },
+
+        // POST /api/projects/:name/run {name} → {run_id}
+        run: function (name, cmd) {
+            return Lib.request(
+                '/api/projects/' + encodeURIComponent(name) + '/run',
+                { method: 'POST', body: { name: cmd } }
+            );
+        },
+
+        // POST /api/runs/:run_id/terminate
+        terminate: function (runId) {
+            return Lib.request('/api/runs/' + encodeURIComponent(runId) + '/terminate', { method: 'POST' });
+        },
+
+        // GET /api/backups?project=
+        backups: function (project) {
+            return Lib.request('/api/backups' + qs({ project: project }));
+        },
+
+        // POST /api/backups/restore {project, version}
+        restoreBackup: function (project, version) {
+            return Lib.request('/api/backups/restore', {
+                method: 'POST', body: { project: project, version: version },
+            });
+        },
+
+        // GET /api/export?format=json|csv|md → blob
+        exportData: function (format) {
+            return fetch('/api/export?format=' + encodeURIComponent(format)).then(function (r) {
+                if (!r.ok) throw new Error('导出失败 ' + r.status);
+                return r.blob();
+            });
+        },
+
+        // GET /api/autostart → {enabled}
+        getAutostart: function () { return Lib.request('/api/autostart'); },
+        // PUT /api/autostart {enabled}
+        putAutostart: function (enabled) {
+            return Lib.request('/api/autostart', { method: 'PUT', body: { enabled: enabled } });
+        },
     };
 
     window.Api = Api;

@@ -17,6 +17,8 @@
             status: '',
             cat: '',
             year: '',
+            month: '',          // YYYY-MM 精确月筛选（时间线点选）
+            stale: false,       // 陈年项目开关
             excludeArchived: true,
         },
         sort: { field: 'last_active', dir: -1 },
@@ -45,6 +47,8 @@
         if (f.status && p.status !== f.status) return false;
         if (f.cat && p.category !== f.cat) return false;
         if (f.year && Lib.yearOf(p.last_active) !== f.year) return false;
+        if (f.month && !(p.last_active && p.last_active.indexOf(f.month) === 0)) return false;
+        if (f.stale && !p.stale) return false;
         if (f.q) {
             var q = f.q.toLowerCase();
             var hay = [

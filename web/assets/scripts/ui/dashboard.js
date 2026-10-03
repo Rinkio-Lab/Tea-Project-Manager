@@ -39,11 +39,14 @@
 
         host.innerHTML =
             '<div class="page-head"><h1>仪表盘</h1>' +
-            '<span class="sub">一眼看完手上这些项目</span></div>' +
+            '<span class="sub">一眼看完手上这些项目</span>' +
+            '<button class="btn-secondary small" id="snapshotBtn">' + Lib.icon('download') + ' 存快照</button>' +
+            '</div>' +
             '<div class="stat-cards">' +
               statCard(list.length, '项目总数') +
               statCard(Object.keys(langSet).length, '语言数') +
               statCard(statusCount['进行中'] || 0, '在弄的') +
+              statCard(list.filter(function (p) { return p.resource_type === 'resource'; }).length, '资源型') +
               statCard(Lib.fmtSize(totalSize), '总占用') +
             '</div>' +
             '<div class="charts-grid">' +
@@ -52,6 +55,7 @@
               chartBox('活跃时间线（按最后活跃月份）', 'chartTimeline', true) +
             '</div>';
 
+        document.getElementById('snapshotBtn').addEventListener('click', downloadSnapshot);
         drawLangChart(list);
         drawStatusChart(statusCount);
         drawTimeline(list);
@@ -207,10 +211,34 @@
         });
         c.off('click');
         c.on('click', function (params) {
-            var month = params.data[0];
-            Store.setFilter({ year: String(Number(month.slice(0, 4))) });
+            var month = months[params.data[0]];
+            Store.setFilter({ month: month });
             window.App.go('grid');
         });
+    }
+
+    /* 快照导出（变更 15）：把当前三张图导成 PNG，拼成自包含 HTML 下载 */
+    function downloadSnapshot() {
+        try {
+            var date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            var imgs = charts.map(function (c, i) {
+                return '<h3>图 ' + (i + 1) + '</h3><img src="' +
+                    c.getDataURL({ type: 'png', backgroundColor: '#f5f2ed' }) + '">';
+            }).join('');
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tea PM 快照 ' + date +
+                '</title><style>body{font-family:sans-serif;background:#f5f2ed;color:#3a3733;padding:24px}' +
+                'img{max-width:600px;border:1px solid #ccc}</style></head><body>' +
+                '<h1>Tea PM 项目快照 ' + date + '</h1>' + imgs + '</body></html>';
+            var blob = new Blob([html], { type: 'text/html' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'dashboard-snapshot-' + date + '.html';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            Lib.toast('快照已下载', 'success');
+        } catch (e) {
+            Lib.toast('快照导出失败：' + e.message, 'error');
+        }
     }
 
     window.Dashboard = { render: render };
