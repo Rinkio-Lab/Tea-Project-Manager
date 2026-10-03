@@ -9,7 +9,6 @@
 package scanner
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -176,12 +175,9 @@ func scanOne(root, dir string, write bool, res *ScanResult, exts []string) (*met
 	// ---- 刷新自动区（两种情况都刷）----
 	fillAuto(p)
 
-	if existing == nil && write {
-		if err := meta.SaveYaml(p); err != nil {
-			return nil, fmt.Errorf("write .teaproject in %s: %w", dir, err)
-		}
-		res.CreatedYaml = append(res.CreatedYaml, rel)
-	}
+	// 注意：推断条目（existing==nil）不再落盘 .teaproject 文件——
+	// 只写索引。这样用户后续放 .project/.tea 等自定义配置时能被 LoadYamlExt 读到
+	// （否则推断 .teaproject 会永远占据优先级首位，自定义配置永不被读）。
 	return p, nil
 }
 
