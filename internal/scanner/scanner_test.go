@@ -134,24 +134,53 @@ func TestDryRunDoesNotWrite(t *testing.T) {
 	}
 }
 
-// TestWriteCreatesYaml 验证 write=true 时 fresh/.teaproject 落盘，且含推断字段。
-func TestWriteCreatesYaml(t *testing.T) {
+// TestWriteDoesNotPersistYaml 验证 write=true 时 fresh 推断条目只进索引、不落盘 .teaproject。
+//（R6-1：不落盘是为了让后续用户放的自定义扩展名配置能被 LoadYamlExt 读到）
+func TestWriteDoesNotPersistYaml(t *testing.T) {
 	root := setupTree(t)
 	frPath := filepath.Join(root, "fresh", ".teaproject")
 
 	if _, err := Scan(root, true, []string{".teaproject"}); err != nil {
 		t.Fatalf("Scan write: %v", err)
 	}
-	data, err := os.ReadFile(frPath)
+	if _, err := os.Stat(frPath); !os.IsNotExist(err) {
+		t.Errorf("write=true 不应落盘 %s（推断条目只进索引）", frPath)
+	}
+}
+
+// TestRescanPicksUpNewConfig 回归：fresh 推断条目入索引后，
+// 目录里补一个 .teaproject 配置文件 → 再 Scan → 手写区从磁盘读出（覆盖推断 name）。
+func TestRescanPicksUpNewConfig(t *testing.T) {
+	root := setupTree(t)
+	// 首扫：fresh 无配置 → 推断条目
+	if _, err := Scan(root, false, []string{".teaproject"}); err != nil {
+		t.Fatalf("first scan: %v", err)
+	}
+	// 用户放 .teaproject（手写区）
+	cfg := "name: CustomName\nstatus: 进行中\ndescription: 用户手写\n"
+	if err := os.WriteFile(filepath.Join(root, "fresh", ".teaproject"), []byte(cfg), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// 再扫
+	res, err := Scan(root, false, []string{".teaproject"})
 	if err != nil {
-		t.Fatalf("write=true 应落盘 %s: %v", frPath, err)
+		t.Fatalf("second scan: %v", err)
 	}
-	s := string(data)
-	if !contains(s, "name: fresh") {
-		t.Errorf("落盘 yaml 缺 name: fresh\n%s", s)
+	var fr *meta.Project
+	for _, p := range res.Projects {
+		if p.Name == "CustomName" {
+			fr = p
+			break
+		}
 	}
-	if !contains(s, "ai: true") {
-		t.Errorf("落盘 yaml 应含 ai: true\n%s", s)
+	if fr == nil {
+		t.Fatal("rescan 后未读到 .teaproject 的手写 name=CustomName")
+	}
+	if fr.Status != "进行中" {
+		t.Errorf("status 未从磁盘读出: got %q", fr.Status)
+	}
+	if fr.Description != "用户手写" {
+		t.Errorf("description 未从磁盘读出: got %q", fr.Description)
 	}
 }
 
