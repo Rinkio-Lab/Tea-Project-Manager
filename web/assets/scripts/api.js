@@ -56,6 +56,11 @@
             );
         },
 
+        // POST /api/projects  body {name, type, desc, readme}
+        createProject: function (body) {
+            return Lib.request('/api/projects', { method: 'POST', body: body });
+        },
+
         // POST /api/projects/:name/archive
         archive: function (name) {
             return Lib.request(

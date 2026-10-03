@@ -13,10 +13,11 @@
     function buildItems() {
         var out = [];
         var cur = Store.state.currentProject;
-        out.push({ label: '网格视图', hint: '视图', run: function () { window.App.go('grid'); } });
-        out.push({ label: '表格视图', hint: '视图', run: function () { window.App.go('table'); } });
-        out.push({ label: '仪表盘', hint: '视图', run: function () { window.App.go('dashboard'); } });
-        out.push({ label: '打开设置', hint: '应用', run: function () { window.SettingsPanel.open(); } });
+        out.push({ label: window.I18n.t('palette.newProject'), hint: window.I18n.t('set.projectService'), run: function () { window.App.openNewProject(); } });
+        out.push({ label: window.I18n.t('nav.grid'), hint: window.I18n.t('set.appearance'), run: function () { window.App.go('grid'); } });
+        out.push({ label: window.I18n.t('nav.table'), hint: window.I18n.t('set.appearance'), run: function () { window.App.go('table'); } });
+        out.push({ label: window.I18n.t('nav.dashboard'), hint: window.I18n.t('set.appearance'), run: function () { window.App.go('dashboard'); } });
+        out.push({ label: window.I18n.t('nav.settings'), hint: window.I18n.t('set.appearance'), run: function () { window.SettingsPanel.open(); } });
         if (cur) {
             out.push({ label: '在终端打开当前：' + cur, hint: '动作', run: function () { window.App.doOpen(cur, 'terminal'); } });
             out.push({ label: '在 VS Code 打开当前：' + cur, hint: '动作', run: function () { window.App.doOpen(cur, 'vscode'); } });

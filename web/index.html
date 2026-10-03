@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+﻿<!DOCTYPE html>
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tea PM · 项目管家</title>
+<title data-i18n="app.title">Tea PM · 项目管家</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icons/tea-pm-icon.svg">
 <link rel="stylesheet" href="assets/styles/tokens.css">
@@ -32,19 +32,19 @@
 
     <div class="sidebar-section">
       <div class="sidebar-label">导航</div>
-      <button class="sidebar-btn" data-nav="grid"><span class="icon" data-icon="grid"></span><span class="label">网格</span></button>
-      <button class="sidebar-btn" data-nav="table"><span class="icon" data-icon="list"></span><span class="label">表格</span></button>
-      <button class="sidebar-btn" data-nav="dashboard"><span class="icon" data-icon="dashboard"></span><span class="label">仪表盘</span></button>
-      <button class="sidebar-btn" id="settingsBtn"><span class="icon" data-icon="gear"></span><span class="label">设置</span></button>
+      <button class="sidebar-btn" data-nav="grid"><span class="icon" data-icon="grid"></span><span class="label" data-i18n="nav.grid">网格</span></button>
+      <button class="sidebar-btn" data-nav="table"><span class="icon" data-icon="list"></span><span class="label" data-i18n="nav.table">表格</span></button>
+      <button class="sidebar-btn" data-nav="dashboard"><span class="icon" data-icon="dashboard"></span><span class="label" data-i18n="nav.dashboard">仪表盘</span></button>
+      <button class="sidebar-btn" id="settingsBtn"><span class="icon" data-icon="gear"></span><span class="label" data-i18n="nav.settings">设置</span></button>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">置顶</div>
+      <div class="sidebar-label" data-i18n="nav.pinned">置顶</div>
       <div id="pinnedHost"></div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">保存的视图</div>
+      <div class="sidebar-label" data-i18n="nav.savedViews">保存的视图</div>
       <div id="savedViewsHost"></div>
     </div>
 
@@ -53,7 +53,7 @@
 
   <!-- 主内容 -->
   <main class="main">
-    <div class="service-notice" id="serviceNotice">本地服务未启动 — 下面是空态，跑起来 tea serve 后自动加载</div>
+    <div class="service-notice" id="serviceNotice" data-i18n="empty.noServiceHint">本地服务未启动</div>
 
     <div class="view-container">
       <div id="toolbarHost"></div>
@@ -67,10 +67,10 @@
     <button class="ctrl-btn" id="settingsBtn2" title="设置" data-icon="gear"></button>
   </div>
   <div class="bottom-nav">
-    <button class="bottom-nav-slot" data-nav="grid"><span data-icon="grid"></span><span class="nav-label">网格</span></button>
-    <button class="bottom-nav-slot" data-nav="table"><span data-icon="list"></span><span class="nav-label">表格</span></button>
-    <button class="bottom-nav-slot" data-nav="dashboard"><span data-icon="dashboard"></span><span class="nav-label">仪表盘</span></button>
-    <button class="bottom-nav-slot" id="settingsBtn3"><span data-icon="gear"></span><span class="nav-label">设置</span></button>
+    <button class="bottom-nav-slot" data-nav="grid"><span data-icon="grid"></span><span class="nav-label" data-i18n="nav.grid">网格</span></button>
+    <button class="bottom-nav-slot" data-nav="table"><span data-icon="list"></span><span class="nav-label" data-i18n="nav.table">表格</span></button>
+    <button class="bottom-nav-slot" data-nav="dashboard"><span data-icon="dashboard"></span><span class="nav-label" data-i18n="nav.dashboard">仪表盘</span></button>
+    <button class="bottom-nav-slot" id="settingsBtn3"><span data-icon="gear"></span><span class="nav-label" data-i18n="nav.settings">设置</span></button>
   </div>
 </div>
 
@@ -78,10 +78,35 @@
 <div class="drawer-mask" id="drawerMask"></div>
 <div class="settings-drawer" id="drawer">
   <div class="drawer-head">
-    <h2>设置</h2>
+    <h2 data-i18n="nav.settings">设置</h2>
     <button class="ctrl-btn" id="drawerClose" data-icon="x"></button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<!-- 新建项目弹窗 -->
+<div class="overlay" id="newProjOverlay">
+  <div class="modal">
+    <div class="modal-body">
+      <h3 data-i18n="newproj.title">新建项目</h3>
+      <div class="setting-row"><span class="setting-label" data-i18n="newproj.name">名称</span>
+        <input type="text" id="npName" style="flex:1"></div>
+      <div class="setting-row"><span class="setting-label" data-i18n="newproj.type">类型</span>
+        <select id="npType">
+          <option value="empty" data-i18n="newproj.type.empty">空目录</option>
+          <option value="web" data-i18n="newproj.type.web">Web</option>
+          <option value="python" data-i18n="newproj.type.python">Python</option>
+        </select></div>
+      <div class="setting-row"><span class="setting-label" data-i18n="newproj.desc">描述</span>
+        <input type="text" id="npDesc" style="flex:1"></div>
+      <div class="setting-row"><span class="setting-label" data-i18n="newproj.readme">同时建 README</span>
+        <input type="checkbox" id="npReadme" checked></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="npCancel" data-i18n="newproj.cancel">取消</button>
+      <button class="btn-primary" id="npCreate" data-i18n="newproj.create">创建</button>
+    </div>
+  </div>
 </div>
 
 <!-- 快捷键帮助 -->
@@ -90,20 +115,20 @@
     <div class="modal-body">
       <h3>快捷键</h3>
       <table class="help-table">
-        <tr><td><span class="keycap">/</span></td><td>聚焦搜索</td></tr>
-        <tr><td><span class="keycap">g</span> <span class="keycap">g</span></td><td>网格视图</td></tr>
-        <tr><td><span class="keycap">g</span> <span class="keycap">t</span></td><td>表格视图</td></tr>
-        <tr><td><span class="keycap">g</span> <span class="keycap">d</span></td><td>仪表盘</td></tr>
-        <tr><td><span class="keycap">g</span> <span class="keycap">s</span></td><td>打开设置</td></tr>
-        <tr><td><span class="keycap">e</span></td><td>编辑当前项目</td></tr>
-        <tr><td><span class="keycap">o</span></td><td>在终端打开</td></tr>
-        <tr><td><span class="keycap">a</span></td><td>归档当前项目</td></tr>
-        <tr><td><span class="keycap">Ctrl+S</span></td><td>保存编辑</td></tr>
-        <tr><td><span class="keycap">?</span></td><td>看这张表</td></tr>
+        <tr><td><span class="keycap">/</span></td><td data-i18n="help.search">聚焦搜索</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">g</span></td><td data-i18n="help.grid">网格视图</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">t</span></td><td data-i18n="help.table">表格视图</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">d</span></td><td data-i18n="help.dashboard">仪表盘</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">s</span></td><td data-i18n="help.settings">打开设置</td></tr>
+        <tr><td><span class="keycap">e</span></td><td data-i18n="help.edit">编辑当前项目</td></tr>
+        <tr><td><span class="keycap">o</span></td><td data-i18n="help.open">在终端打开</td></tr>
+        <tr><td><span class="keycap">a</span></td><td data-i18n="help.archive">归档当前项目</td></tr>
+        <tr><td><span class="keycap">Ctrl+S</span></td><td data-i18n="help.save">保存编辑</td></tr>
+        <tr><td><span class="keycap">?</span></td><td data-i18n="help.cheatsheet">看这张表</td></tr>
       </table>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" id="helpClose">关闭</button>
+      <button class="btn-secondary" id="helpClose" data-i18n="help.close">关闭</button>
     </div>
   </div>
 </div>
@@ -111,15 +136,20 @@
 <!-- echarts：本地 vendor，相对路径引用，不连外网 -->
 <script src="vendor/echarts/echarts.min.js"></script>
 
-<script src="assets/scripts/lib.js?v=r4"></script>
-<script src="assets/scripts/theme.js?v=r4"></script>
-<script src="assets/scripts/store.js?v=r4"></script>
-<script src="assets/scripts/api.js?v=r4"></script>
-<script src="assets/scripts/ui/views.js?v=r4"></script>
-<script src="assets/scripts/ui/project-detail.js?v=r4"></script>
-<script src="assets/scripts/ui/dashboard.js?v=r4"></script>
-<script src="assets/scripts/ui/settings-panel.js?v=r4"></script>
-<script src="assets/scripts/ui/palette.js?v=r4"></script>
+<script src="assets/scripts/i18n/languages.js?v=r7"></script>
+<script src="assets/scripts/i18n/zh.js?v=r7"></script>
+<script src="assets/scripts/i18n/en.js?v=r7"></script>
+<script src="assets/scripts/i18n/ja.js?v=r7"></script>
+
+<script src="assets/scripts/lib.js?v=r7"></script>
+<script src="assets/scripts/theme.js?v=r7"></script>
+<script src="assets/scripts/store.js?v=r7"></script>
+<script src="assets/scripts/api.js?v=r7"></script>
+<script src="assets/scripts/ui/views.js?v=r7"></script>
+<script src="assets/scripts/ui/project-detail.js?v=r7"></script>
+<script src="assets/scripts/ui/dashboard.js?v=r7"></script>
+<script src="assets/scripts/ui/settings-panel.js?v=r7"></script>
+<script src="assets/scripts/ui/palette.js?v=r7"></script>
 
 <script>
 // 把所有 [data-icon] 占位符替换为内联 SVG
@@ -146,12 +176,20 @@ document.getElementById('helpClose').addEventListener('click', function () {
 document.querySelectorAll('.bottom-nav-slot[data-nav]').forEach(function (b) {
   b.addEventListener('click', function () { window.App.go(b.dataset.nav); });
 });
-// 启动
-window.App.init();
-// PWA：仅 localhost 注册 SW，失败静默
+// 新建项目
+document.getElementById('npCancel').addEventListener('click', function () {
+  document.getElementById('newProjOverlay').classList.remove('open');
+});
+// 启动：先 i18n 再 App.init
+window.I18n.init(function () {
+  window.App.init();
+});
+// PWA
 if ('serviceWorker' in navigator && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   navigator.serviceWorker.register('/sw.js').catch(function () {});
 }
 </script>
 </body>
 </html>
+
+

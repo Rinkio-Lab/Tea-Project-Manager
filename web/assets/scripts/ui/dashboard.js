@@ -42,21 +42,21 @@
             : list.filter(function (p) { return p.resource_type === 'resource'; }).length;
 
         host.innerHTML =
-            '<div class="page-head"><h1>仪表盘</h1>' +
-            '<span class="sub">一眼看完手上这些项目</span>' +
-            '<button class="btn-secondary small" id="snapshotBtn">' + Lib.icon('download') + ' 存快照</button>' +
+            '<div class="page-head"><h1>' + window.I18n.t('dash.title') + '</h1>' +
+            '<span class="sub">' + window.I18n.t('dash.subtitle') + '</span>' +
+            '<button class="btn-secondary small" id="snapshotBtn">' + Lib.icon('download') + ' ' + window.I18n.t('dash.snapshot') + '</button>' +
             '</div>' +
             '<div class="stat-cards">' +
-              statCard(list.length, '项目总数') +
-              statCard(Object.keys(langSet).length, '语言数') +
-              statCard(statusCount['进行中'] || 0, '在弄的') +
-              statCard(resCount, '资源型') +
-              statCard(Lib.fmtSize(totalSize), '总占用') +
+              statCard(list.length, window.I18n.t('dash.totalProjects')) +
+              statCard(Object.keys(langSet).length, window.I18n.t('dash.langCount')) +
+              statCard(statusCount['进行中'] || 0, window.I18n.t('dash.active')) +
+              statCard(resCount, window.I18n.t('dash.resource')) +
+              statCard(Lib.fmtSize(totalSize), window.I18n.t('dash.totalSize')) +
             '</div>' +
             '<div class="charts-grid">' +
-              chartBox('语言分布', 'chartLang') +
-              chartBox('状态分布', 'chartStatus') +
-              chartBox('活跃时间线（按最后活跃月份）', 'chartTimeline', true) +
+              chartBox(window.I18n.t('dash.langChart'), 'chartLang') +
+              chartBox(window.I18n.t('dash.statusChart'), 'chartStatus') +
+              chartBox(window.I18n.t('dash.timeline'), 'chartTimeline', true) +
             '</div>';
 
         document.getElementById('snapshotBtn').addEventListener('click', downloadSnapshot);

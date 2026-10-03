@@ -94,23 +94,31 @@
 
         body.innerHTML =
             '<div class="settings-section">' +
-              '<h3>外观</h3>' +
-              '<div class="setting-row"><span class="setting-label">主题</span>' +
+              '<h3>' + window.I18n.t('set.appearance') + '</h3>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.language') + '</span>' +
+                '<select id="setLang">' +
+                  window.I18n.LANGUAGES.map(function (l) {
+                      return '<option value="' + l.code + '"' +
+                          (window.I18n.getLang() === l.code ? ' selected' : '') +
+                          '>' + l.native + '</option>';
+                  }).join('') +
+                '</select></div>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.theme') + '</span>' +
                 '<select id="setTheme">' +
-                  '<option value="light"' + sel(cur.theme, 'light') + '>亮色</option>' +
-                  '<option value="dark"' + sel(cur.theme, 'dark') + '>暗色</option>' +
-                  '<option value="system"' + sel(cur.theme, 'system') + '>跟随系统</option>' +
+                  '<option value="light"' + sel(cur.theme, 'light') + '>' + window.I18n.t('set.theme.light') + '</option>' +
+                  '<option value="dark"' + sel(cur.theme, 'dark') + '>' + window.I18n.t('set.theme.dark') + '</option>' +
+                  '<option value="system"' + sel(cur.theme, 'system') + '>' + window.I18n.t('set.theme.system') + '</option>' +
                 '</select></div>' +
               '<div class="settings-desc">皮肤任选，高对比会自动跟随亮/暗。</div>' +
               '<div class="color-grid">' + skinGrid + '</div>' +
-              '<div class="setting-row"><span class="setting-label">字号</span>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.size') + '</span>' +
                 '<input type="range" id="setSize" min="12" max="18" step="1" value="' +
                 cur.uiSize + '">' +
                 '<span class="setting-value">' + cur.uiSize + 'px</span></div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>卡片强调色</h3>' +
+              '<h3>' + window.I18n.t('set.followLang') + '</h3>' +
               '<div class="setting-row"><span class="setting-label">跟随项目语言</span>' +
                 '<input type="checkbox" id="setFollowLang"' +
                 (cur.followLanguage ? ' checked' : '') + '></div>' +
@@ -118,102 +126,102 @@
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>快捷筛选</h3>' +
-              '<div class="setting-row"><span class="setting-label">显示快捷按钮</span>' +
+              '<h3>' + window.I18n.t('set.quickFilters') + '</h3>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.qfShow') + '</span>' +
                 '<input type="checkbox" id="qfShow"' + (qf.show ? ' checked' : '') + '></div>' +
-              '<div class="setting-row"><span class="setting-label">语言按钮</span></div>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.qfLangs') + '</span></div>' +
               langRows +
               '<div class="row" style="display:flex;gap:6px;margin-top:6px">' +
                 '<input type="text" id="qfAddLang" placeholder="加语言，如 Python" style="flex:1">' +
-                '<button class="btn-secondary small" id="qfAddLangBtn">加</button>' +
+                '<button class="btn-secondary small" id="qfAddLangBtn">' + window.I18n.t('set.addExt') + '</button>' +
               '</div>' +
-              '<div class="setting-row" style="margin-top:10px"><span class="setting-label">状态按钮</span></div>' +
+              '<div class="setting-row" style="margin-top:10px"><span class="setting-label">' + window.I18n.t('set.qfStatus') + '</span></div>' +
               stRows +
               '<div class="row" style="display:flex;gap:6px;margin-top:6px">' +
                 '<select id="qfAddSt">' + STATUS_WORDS.map(function (w) {
                     return '<option>' + w + '</option>';
                 }).join('') + '</select>' +
-                '<button class="btn-secondary small" id="qfAddStBtn">加</button>' +
+                '<button class="btn-secondary small" id="qfAddStBtn">' + window.I18n.t('set.addExt') + '</button>' +
               '</div>' +
               '<div class="row" style="margin-top:10px">' +
-                '<button class="btn-secondary small" id="qfReset">恢复默认</button>' +
+                '<button class="btn-secondary small" id="qfReset">' + window.I18n.t('set.qfReset') + '</button>' +
               '</div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>工作区</h3>' +
+              '<h3>' + window.I18n.t('set.workspaces') + '</h3>' +
               '<div class="settings-desc">按目录前缀把项目分组，卡片顶部出对应色条。</div>' +
               wsRows +
               '<div class="row" style="margin-top:10px">' +
-                '<button class="btn-secondary small" id="wsNew">' + Lib.icon('plus') + ' 新建工作区</button>' +
+                '<button class="btn-secondary small" id="wsNew">' + Lib.icon('plus') + ' ' + window.I18n.t('set.wsNew') + '</button>' +
               '</div>' +
               '<div id="wsEditHost"></div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>动效</h3>' +
-              '<div class="setting-row"><span class="setting-label">开启动画</span>' +
+              '<h3>' + window.I18n.t('set.anim') + '</h3>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.animOn') + '</span>' +
                 '<input type="checkbox" id="setAnim"' + (cur.animations ? ' checked' : '') + '></div>' +
-              '<div class="setting-row"><span class="setting-label">速度</span>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.speed') + '</span>' +
                 '<select id="setSpeed">' +
-                  '<option value="slow"' + sel(cur.animationSpeed, 'slow') + '>慢</option>' +
-                  '<option value="normal"' + sel(cur.animationSpeed, 'normal') + '>正常</option>' +
-                  '<option value="fast"' + sel(cur.animationSpeed, 'fast') + '>快</option>' +
+                  '<option value="slow"' + sel(cur.animationSpeed, 'slow') + '>' + window.I18n.t('set.slow') + '</option>' +
+                  '<option value="normal"' + sel(cur.animationSpeed, 'normal') + '>' + window.I18n.t('set.normal') + '</option>' +
+                  '<option value="fast"' + sel(cur.animationSpeed, 'fast') + '>' + window.I18n.t('set.fast') + '</option>' +
                 '</select></div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>主题备份</h3>' +
+              '<h3>' + window.I18n.t('set.themeBackup') + '</h3>' +
               '<div class="row" style="display:flex;gap:8px;flex-wrap:wrap">' +
-                '<button class="btn-secondary small" id="exportTheme">导出主题 JSON</button>' +
-                '<button class="btn-secondary small" id="importTheme">导入主题</button>' +
+                '<button class="btn-secondary small" id="exportTheme">' + window.I18n.t('set.exportTheme') + '</button>' +
+                '<button class="btn-secondary small" id="importTheme">' + window.I18n.t('set.importTheme') + '</button>' +
                 '<input type="file" id="importFile" accept="application/json" class="hidden">' +
               '</div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>项目服务</h3>' +
-              '<div class="setting-row"><span class="setting-label">根目录</span>' +
+              '<h3>' + window.I18n.t('set.projectService') + '</h3>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.root') + '</span>' +
                 '<span class="setting-value">' +
                 Lib.esc(si.projects_root || '—') + '</span></div>' +
-              '<div class="setting-row"><span class="setting-label">端口</span>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.port') + '</span>' +
                 '<span class="setting-value">' +
                 Lib.esc(String(si.port || '—')) + '</span></div>' +
-              '<div class="setting-row"><span class="setting-label">默认首页</span>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.defaultView') + '</span>' +
                 '<select id="setDefaultView">' +
-                  '<option value="grid"' + sel(si.default_view, 'grid') + '>网格</option>' +
-                  '<option value="table"' + sel(si.default_view, 'table') + '>表格</option>' +
-                  '<option value="dashboard"' + sel(si.default_view, 'dashboard') + '>仪表盘</option>' +
+                  '<option value="grid"' + sel(si.default_view, 'grid') + '>' + window.I18n.t('nav.grid') + '</option>' +
+                  '<option value="table"' + sel(si.default_view, 'table') + '>' + window.I18n.t('nav.table') + '</option>' +
+                  '<option value="dashboard"' + sel(si.default_view, 'dashboard') + '>' + window.I18n.t('nav.dashboard') + '</option>' +
                 '</select></div>' +
-              '<div class="setting-row"><span class="setting-label">开机自启</span>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.autostart') + '</span>' +
                 '<input type="checkbox" id="setAutostart"></div>' +
-              '<div class="settings-desc" id="autostartHint">读取中…</div>' +
+              '<div class="settings-desc" id="autostartHint">' + window.I18n.t('set.autostartLoading') + '</div>' +
             '</div>' +
 
             configExtensionsSection(si) +
 
             '<div class="settings-section">' +
-              '<h3>备份快照</h3>' +
-              '<div class="setting-row"><span class="setting-label">选项目</span>' +
+              '<h3>' + window.I18n.t('set.backupSnapshots') + '</h3>' +
+              '<div class="setting-row"><span class="setting-label">' + window.I18n.t('set.backupProj') + '</span>' +
                 '<select id="bkProj">' +
-                  '<option value="">— 选一个 —</option>' +
+                  '<option value="">' + window.I18n.t('set.backupProjPh') + '</option>' +
                   ((Store.state.projects || []).map(function (p) {
                       return '<option>' + Lib.esc(p.name) + '</option>';
                   }).join('')) +
                 '</select></div>' +
               '<div id="bkList"></div>' +
-              '<div class="setting-row" style="margin-top:10px"><span class="setting-label">保留份数</span>' +
+              '<div class="setting-row" style="margin-top:10px"><span class="setting-label">' + window.I18n.t('set.backupKeep') + '</span>' +
                 '<input type="number" id="bkKeep" min="1" max="50" value="' +
                 Lib.esc(String(si.backup_keep || 5)) + '" style="width:80px"></div>' +
-              '<div class="row" style="margin-top:8px"><button class="btn-primary small" id="bkSave">保存备份设置</button></div>' +
+              '<div class="row" style="margin-top:8px"><button class="btn-primary small" id="bkSave">' + window.I18n.t('set.backupSave') + '</button></div>' +
             '</div>' +
 
             '<div class="settings-section">' +
-              '<h3>导出</h3>' +
+              '<h3>' + window.I18n.t('set.exportTitle') + '</h3>' +
               '<div class="row" style="display:flex;gap:8px;flex-wrap:wrap">' +
-                '<button class="btn-secondary small" data-export="json">导出 JSON</button>' +
-                '<button class="btn-secondary small" data-export="csv">导出 CSV</button>' +
-                '<button class="btn-secondary small" data-export="md">导出 Markdown</button>' +
+                '<button class="btn-secondary small" data-export="json">' + window.I18n.t('set.expJsonBtn') + '</button>' +
+                '<button class="btn-secondary small" data-export="csv">' + window.I18n.t('set.expCsvBtn') + '</button>' +
+                '<button class="btn-secondary small" data-export="md">' + window.I18n.t('set.expMdBtn') + '</button>' +
               '</div>' +
             '</div>';
 
@@ -323,6 +331,13 @@
             Lib.toast('主题已导入', 'success');
         });
 
+        // === 界面语言 ===
+        document.getElementById('setLang').addEventListener('change', function (e) {
+            window.I18n.setLang(e.target.value);
+            window.App.render();
+            renderBody();
+        });
+
         // === 默认首页 / 开机自启 ===
         document.getElementById('setDefaultView').addEventListener('change', function (e) {
             persistSettingsPatch({ default_view: e.target.value })
@@ -357,18 +372,18 @@
                 var arr = r.versions || r || [];
                 listHost.innerHTML = arr.map(function (v) {
                     return '<div class="qf-row"><span>' + Lib.esc(String(v)) + '</span>' +
-                        '<button class="mini-btn" data-bk-restore="' + Lib.esc(String(v)) + '">恢复</button></div>';
-                }).join('') || '<div class="settings-desc">没有备份</div>';
+                        '<button class="mini-btn" data-bk-restore="' + Lib.esc(String(v)) + '">' + window.I18n.t('set.backupRestore') + '</button></div>';
+                }).join('') || '<div class="settings-desc">' + window.I18n.t('set.backupNone') + '</div>';
                 listHost.querySelectorAll('[data-bk-restore]').forEach(function (b) {
                     b.addEventListener('click', function () {
-                        if (!confirm('恢复到版本 ' + b.dataset.bkRestore + '？当前配置会被覆盖。')) return;
+                        if (!confirm(window.I18n.t('set.backupConfirm', { v: b.dataset.bkRestore }))) return;
                         Api.restoreBackup(e.target.value, b.dataset.bkRestore)
-                            .then(function () { Lib.toast('已恢复', 'success'); })
-                            .catch(function (err) { Lib.toast('恢复失败：' + err.message, 'error'); });
+                            .then(function () { Lib.toast(window.I18n.t('set.backupRestored'), 'success'); })
+                            .catch(function (err) { Lib.toast(window.I18n.t('set.backupRestoreFail') + err.message, 'error'); });
                     });
                 });
             } catch (err) {
-                listHost.innerHTML = '<div class="settings-desc">读不到备份：' + Lib.esc(err.message) + '</div>';
+                listHost.innerHTML = '<div class="settings-desc">' + window.I18n.t('set.backupRestoreFail') + Lib.esc(err.message) + '</div>';
             }
         });
         document.getElementById('bkSave').addEventListener('click', function () {
@@ -386,8 +401,8 @@
                     a.download = 'tea-pm-export.' + b.dataset.export;
                     a.click();
                     URL.revokeObjectURL(a.href);
-                    Lib.toast('已导出', 'success');
-                }).catch(function (err) { Lib.toast('导出失败：' + err.message, 'error'); });
+                    Lib.toast(window.I18n.t('set.exported'), 'success');
+                }).catch(function (err) { Lib.toast(window.I18n.t('set.exportFail') + err.message, 'error'); });
             });
         });
 
@@ -521,21 +536,21 @@
             return '<div class="qf-row">' +
                 '<label><input type="checkbox" data-ext="' + Lib.esc(ext) + '"' +
                     (checked ? ' checked' : '') + (locked ? ' disabled' : '') + '> ' +
-                    Lib.esc(ext) + (locked ? '（核心格式）' : '') + '</label>' +
+                    Lib.esc(ext) + (locked ? window.I18n.t('set.configExtLocked') : '') + '</label>' +
                 (BUILTIN_EXT.indexOf(ext) === -1
-                    ? '<button class="mini-btn" data-ext-del="' + i + '">删</button>'
+                    ? '<button class="mini-btn" data-ext-del="' + i + '">' + window.I18n.t('action.delete') + '</button>'
                     : '<span></span>') +
                 '</div>';
         }).join('');
         return '<div class="settings-section">' +
-            '<h3>配置扩展名</h3>' +
-            '<div class="settings-desc">顺序即优先级，越靠前越优先。.teaproject 是核心格式，锁定。</div>' +
+            '<h3>' + window.I18n.t('set.configExtTitle') + '</h3>' +
+            '<div class="settings-desc">' + window.I18n.t('set.configExtDesc') + '</div>' +
             rows +
             '<div class="row" style="display:flex;gap:6px;margin-top:6px">' +
-              '<input type="text" id="extAdd" placeholder="如 .project" style="flex:1">' +
-              '<button class="btn-secondary small" id="extAddBtn">添加</button>' +
+              '<input type="text" id="extAdd" placeholder=".project" style="flex:1">' +
+              '<button class="btn-secondary small" id="extAddBtn">' + window.I18n.t('set.addExt') + '</button>' +
             '</div>' +
-            '<div class="row" style="margin-top:8px"><button class="btn-primary small" id="extSave">保存</button></div>' +
+            '<div class="row" style="margin-top:8px"><button class="btn-primary small" id="extSave">' + window.I18n.t('set.saveExt') + '</button></div>' +
           '</div>';
     }
 

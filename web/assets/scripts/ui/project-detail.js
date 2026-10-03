@@ -14,27 +14,27 @@
 
     // 手写区可编辑字段（PUT 白名单）
     var HANDWRITTEN = [
-        { key: 'name', label: '名称', type: 'text', full: true },
-        { key: 'type', label: '类型', type: 'text' },
-        { key: 'category', label: '类别', type: 'text' },
-        { key: 'language', label: '语言', type: 'text' },
-        { key: 'status', label: '状态', type: 'select', options: ['草稿', '进行中', '已完成', '无法判断'] },
-        { key: 'quality', label: '整洁度', type: 'text' },
-        { key: 'description', label: '描述', type: 'textarea', full: true, ai: true },
-        { key: 'intent', label: '意图', type: 'textarea', full: true, ai: true },
-        { key: 'tags', label: '标签', type: 'tags', full: true },
-        { key: 'tech_stack', label: '技术栈', type: 'tags', full: true },
-        { key: 'notes', label: '备注', type: 'textarea', full: true },
+        { key: 'name', label: window.I18n.t('field.name'), type: 'text', full: true },
+        { key: 'type', label: window.I18n.t('field.type'), type: 'text' },
+        { key: 'category', label: window.I18n.t('field.category'), type: 'text' },
+        { key: 'language', label: window.I18n.t('field.language'), type: 'text' },
+        { key: 'status', label: window.I18n.t('field.status'), type: 'select', options: ['草稿', '进行中', '已完成', '无法判断'] },
+        { key: 'quality', label: window.I18n.t('field.quality'), type: 'text' },
+        { key: 'description', label: window.I18n.t('field.description'), type: 'textarea', full: true, ai: true },
+        { key: 'intent', label: window.I18n.t('field.intent'), type: 'textarea', full: true, ai: true },
+        { key: 'tags', label: window.I18n.t('field.tags'), type: 'tags', full: true },
+        { key: 'tech_stack', label: window.I18n.t('field.techStack'), type: 'tags', full: true },
+        { key: 'notes', label: window.I18n.t('field.notes'), type: 'textarea', full: true },
     ];
 
     var AUTO = [
-        { key: 'last_active', label: '最后活跃' },
-        { key: 'created', label: '创建时间' },
-        { key: 'code_files', label: '代码文件数' },
-        { key: 'total_size_mb', label: '总体积' },
-        { key: 'commits', label: 'Git 提交数' },
-        { key: 'remote', label: '远程仓库' },
-        { key: 'deps', label: '依赖目录' },
+        { key: 'last_active', label: window.I18n.t('field.lastActive') },
+        { key: 'created', label: window.I18n.t('field.created') },
+        { key: 'code_files', label: window.I18n.t('field.codeFiles') },
+        { key: 'total_size_mb', label: window.I18n.t('field.totalSize') },
+        { key: 'commits', label: window.I18n.t('field.commits') },
+        { key: 'remote', label: window.I18n.t('field.remote') },
+        { key: 'deps', label: window.I18n.t('field.deps') },
     ];
 
     async function render(name) {
@@ -92,12 +92,12 @@
         }).join('');
 
         var actionBtns = [
-            ['terminal', '终端'],
-            ['vscode', 'VS Code'],
-            ['explorer', '资源管理器'],
-            ['browser', '浏览器'],
+            ['terminal', window.I18n.t('action.terminal')],
+            ['vscode', window.I18n.t('action.vscode')],
+            ['explorer', window.I18n.t('action.explorer')],
+            ['browser', window.I18n.t('action.browser')],
         ];
-        if (git.remote) actionBtns.push(['github', 'GitHub']);
+        if (git.remote) actionBtns.push(['github', window.I18n.t('action.github')]);
         (p.actions || []).forEach(function (a) {
             actionBtns.push(['custom:' + Lib.esc(a.name), Lib.esc(a.name)]);
         });
@@ -111,8 +111,10 @@
             rowsHtml +
             '<div class="action-bar">' + btnsHtml + '</div>' +
             '<div class="danger-row">' +
-              '<button class="btn-secondary small" id="arcBtn">归档</button>' +
-              '<button class="btn-danger small" id="delBtn">删除</button>' +
+              (p.status === '已归档'
+                ? '<button class="btn-secondary small" id="arcBtn">' + window.I18n.t('action.restore') + '</button>'
+                : '<button class="btn-secondary small" id="arcBtn">' + window.I18n.t('action.archive') + '</button>') +
+              '<button class="btn-danger small" id="delBtn">' + window.I18n.t('action.delete') + '</button>' +
             '</div></div>';
     }
 
@@ -151,17 +153,17 @@
             else val = p[f.key] != null ? String(p[f.key]) : '—';
             return '<div class="field"><div class="field-label">' +
                 Lib.esc(f.label) +
-                '<button class="field-refresh" data-refresh="' + f.key + '" title="重扫此字段">' + Lib.icon('refresh') + '</button></div>' +
+                '<button class="field-refresh" data-refresh="' + f.key + '" title="' + window.I18n.t('field.refresh') + '">' + Lib.icon('refresh') + '</button></div>' +
                 '<div class="field-value readonly" data-key="' + f.key + '">' +
                 Lib.esc(val) + '</div></div>';
         }).join('');
 
         return '<div class="field-group">' +
-                '<div class="field-group-title">手写区 · 你自己说了算</div>' +
+                '<div class="field-group-title">' + window.I18n.t('field.handGroup') + '</div>' +
                 '<div class="field-grid">' + hand + '</div>' +
               '</div>' +
               '<div class="field-group">' +
-                '<div class="field-group-title">自动区 · 扫描器维护</div>' +
+                '<div class="field-group-title">' + window.I18n.t('field.autoGroup') + '</div>' +
                 '<div class="field-grid">' + auto + '</div>' +
               '</div>' +
               commandsHtml(p);
@@ -177,10 +179,10 @@
                 Lib.esc(name) + '">' + Lib.esc(name) + '</button>';
         }).join('');
         return '<div class="field-group">' +
-            '<div class="field-group-title">命令 · .teaproject 里定义的快捷动作</div>' +
+            '<div class="field-group-title">' + window.I18n.t('detail.commands') + '</div>' +
             '<div class="cmd-buttons">' + buttons + '</div>' +
             '<pre class="cmd-output" id="cmdOutput" hidden></pre>' +
-            '<button class="btn-secondary small" id="cmdTerminate" hidden>' + Lib.icon('x') + ' 终止</button>' +
+            '<button class="btn-secondary small" id="cmdTerminate" hidden>' + Lib.icon('x') + ' ' + window.I18n.t('detail.terminate') + '</button>' +
             '</div>';
     }
 
@@ -245,10 +247,10 @@
         }
         return '<div class="field' + (f.full ? ' full' : '') + '">' +
             '<div class="field-label">' + Lib.esc(f.label) +
-            (f.ai ? '<span class="ai-mark" title="AI 生成，待确认">' + Lib.icon('sparkle') + '</span>' : '') +
+            (f.ai ? '<span class="ai-mark" title="' + window.I18n.t('field.aiMark') + '">' + Lib.icon('sparkle') + '</span>' : '') +
             (aiMark ? '<span class="ai-actions">' +
-                '<button class="btn-secondary small" data-ai="adopt">采纳</button>' +
-                '<button class="btn-secondary small" data-ai="regen">替换</button>' +
+                '<button class="btn-secondary small" data-ai="adopt">' + window.I18n.t('field.adopt') + '</button>' +
+                '<button class="btn-secondary small" data-ai="regen">' + window.I18n.t('field.replace') + '</button>' +
                 '</span>' : '') +
             '</div>' +
             '<div class="field-value" data-key="' + f.key + '" data-type="' + f.type + '">' +

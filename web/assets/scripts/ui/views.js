@@ -111,30 +111,31 @@
             '<div class="toolbar">' +
               '<div class="search-box">' +
                 '<span class="search-icon">' + Lib.icon('search') + '</span>' +
-                '<input type="search" id="searchInput" placeholder="搜名称 / 描述 / 标签 / 意图" autocomplete="off">' +
+                '<input type="search" id="searchInput" data-i18n-ph="search.placeholder" placeholder="' + window.I18n.t('search.placeholder') + '" autocomplete="off">' +
                 '<span class="search-key">/</span>' +
               '</div>' +
-              '<select class="filter-select" id="fLang"><option value="">全部语言</option></select>' +
-              '<select class="filter-select" id="fStatus"><option value="">全部状态</option></select>' +
-              '<select class="filter-select" id="fCat"><option value="">全部类别</option></select>' +
-              '<select class="filter-select" id="fYear"><option value="">全部年份</option></select>' +
+              '<select class="filter-select" id="fLang"><option value="">' + window.I18n.t('toolbar.allLang') + '</option></select>' +
+              '<select class="filter-select" id="fStatus"><option value="">' + window.I18n.t('toolbar.allStatus') + '</option></select>' +
+              '<select class="filter-select" id="fCat"><option value="">' + window.I18n.t('toolbar.allCat') + '</option></select>' +
+              '<select class="filter-select" id="fYear"><option value="">' + window.I18n.t('toolbar.allYear') + '</option></select>' +
               '<label class="toggle-chip"><input type="checkbox" id="fArchived"' +
-                (Store.state.filter.excludeArchived ? ' checked' : '') + '> 排除已归档</label>' +
+                (Store.state.filter.excludeArchived ? ' checked' : '') + '> ' + window.I18n.t('toolbar.excludeArchived') + '</label>' +
               '<div class="view-switch">' +
                 '<button data-v="grid"' + (Store.state.view === 'grid' ? ' class="active"' : '') + '>网格</button>' +
                 '<button data-v="table"' + (Store.state.view === 'table' ? ' class="active"' : '') + '>表格</button>' +
               '</div>' +
-              '<button class="btn-secondary small" id="saveViewBtn">存为视图</button>' +
+              '<button class="btn-secondary small" id="saveViewBtn">' + window.I18n.t('toolbar.saveView') + '</button>' +
+              '<button class="btn-primary small" id="newProjBtn">' + Lib.icon('plus') + ' ' + window.I18n.t('toolbar.newProject') + '</button>' +
             '</div>' +
             '<div class="chip-row" id="chipHost"></div>' +
             '<div id="staleBanner"></div>' +
             '<div class="batch-bar" id="batchBar"><span class="batch-count"></span>' +
-              '<button class="btn-secondary small" data-batch="archive">归档</button>' +
-              '<button class="btn-secondary small" data-batch="open">终端</button>' +
-              '<button class="btn-secondary small" data-batch="vscode">VS Code</button>' +
-              '<button class="btn-secondary small" data-batch="explorer">资源管理器</button>' +
-              '<button class="btn-danger small" data-batch="delete">删除</button>' +
-              '<span class="muted">（点空白处取消选择）</span></div>';
+              '<button class="btn-secondary small" data-batch="archive">' + window.I18n.t('batch.archive') + '</button>' +
+              '<button class="btn-secondary small" data-batch="open">' + window.I18n.t('batch.terminal') + '</button>' +
+              '<button class="btn-secondary small" data-batch="vscode">' + window.I18n.t('batch.vscode') + '</button>' +
+              '<button class="btn-secondary small" data-batch="explorer">' + window.I18n.t('batch.explorer') + '</button>' +
+              '<button class="btn-danger small" data-batch="delete">' + window.I18n.t('batch.delete') + '</button>' +
+              '<span class="muted">' + window.I18n.t('batch.hint') + '</span></div>';
 
         // 填充下拉选项
         fillSelect('fLang', unique('language'));
@@ -181,6 +182,7 @@
             b.addEventListener('click', function () { go(b.dataset.v); });
         });
         document.getElementById('saveViewBtn').addEventListener('click', saveCurrentView);
+        document.getElementById('newProjBtn').addEventListener('click', openNewProject);
         renderChips();
     }
 
@@ -262,9 +264,8 @@
             return;
         }
         host.innerHTML = '<div class="stale-banner">' +
-            '<span>' + staleList.length + ' 个项目超过 ' + months +
-            ' 个月没动了，该归档了</span>' +
-            '<button class="btn-secondary small" id="staleGo">去看看</button></div>';
+            '<span>' + window.I18n.t('stale.banner', { n: staleList.length, m: months }) + '</span>' +
+            '<button class="btn-secondary small" id="staleGo">' + window.I18n.t('stale.go') + '</button></div>';
         document.getElementById('staleGo').addEventListener('click', function () {
             Store.setFilter({ stale: true });
             go('grid');
@@ -322,15 +323,14 @@
         if (!Store.state.online) {
             host.innerHTML =
                 '<div class="empty-state">' +
-                '<div class="empty-title">本地服务没连上</div>' +
-                '在项目目录下跑起来 tea serve，再回这里刷新。<br>' +
-                '起好后这里会列出 E:\\Projects 下的全部项目。</div>';
+                '<div class="empty-title">' + window.I18n.t('empty.noService') + '</div>' +
+                window.I18n.t('empty.noServiceHint') + '</div>';
             return;
         }
         if (!list.length) {
             host.innerHTML =
-                '<div class="empty-state"><div class="empty-title">这里还空着</div>' +
-                '调整一下筛选，或者点侧栏的「仪表盘」看看统计。</div>';
+                '<div class="empty-state"><div class="empty-title">' + window.I18n.t('empty.list') + '</div>' +
+                window.I18n.t('empty.listHint') + '</div>';
             return;
         }
 
@@ -394,12 +394,12 @@
             wsBar +
             cover +
             '<div class="card-actions">' +
-              '<button class="ctrl-btn" data-act="open" title="在终端打开">' + Lib.icon('play') + '</button>' +
-              '<button class="ctrl-btn" data-act="edit" title="编辑">' + Lib.icon('edit') + '</button>' +
+              '<button class="ctrl-btn" data-act="open" title="' + window.I18n.t('action.terminal') + '">' + Lib.icon('play') + '</button>' +
+              '<button class="ctrl-btn" data-act="edit" title="' + window.I18n.t('action.edit') + '">' + Lib.icon('edit') + '</button>' +
               (archived
-                ? '<button class="ctrl-btn" data-act="restore" title="恢复">' + Lib.icon('restore') + '</button>'
-                : '<button class="ctrl-btn" data-act="archive" title="归档">' + Lib.icon('archive') + '</button>') +
-              '<button class="ctrl-btn" data-act="delete" title="删除">' + Lib.icon('x') + '</button>' +
+                ? '<button class="ctrl-btn" data-act="restore" title="' + window.I18n.t('action.restore') + '">' + Lib.icon('restore') + '</button>'
+                : '<button class="ctrl-btn" data-act="archive" title="' + window.I18n.t('action.archive') + '">' + Lib.icon('archive') + '</button>') +
+              '<button class="ctrl-btn" data-act="delete" title="' + window.I18n.t('action.delete') + '">' + Lib.icon('x') + '</button>' +
             '</div>' +
             '<div class="card-name">' + Lib.esc(p.name) + '</div>' +
             '<div class="card-meta">' +
@@ -412,7 +412,7 @@
               healthHtml + depsHtml + resHtml +
             '</div>' +
             (git.commits ? '<div class="git-badge">' + Lib.icon('git') + ' ' + git.commits + ' commits</div>' : '') +
-            (git.remote ? '<span class="remote-corner" title="打开仓库">' + Lib.icon('github') + '</span>' : '') +
+            (git.remote ? '<span class="remote-corner" title="' + window.I18n.t('action.github') + '">' + Lib.icon('github') + '</span>' : '') +
             pinHtml + wsTag;
 
         // 右键菜单（变更 6）：置顶/取消置顶、归档、打开
@@ -554,7 +554,7 @@
         var names = Store.selectedNames();
         if (!names.length) { bar.classList.remove('show'); return; }
         bar.classList.add('show');
-        bar.querySelector('.batch-count').textContent = '已选 ' + names.length + ' 项';
+        bar.querySelector('.batch-count').textContent = window.I18n.t('batch.count', { n: names.length });
         bar.querySelectorAll('[data-batch]').forEach(function (btn) {
             btn.onclick = function () {
                 var act = btn.dataset.batch;
@@ -641,6 +641,43 @@
         }
     }
 
+    /* 新建项目（第五批） */
+    function openNewProject() {
+        var ov = document.getElementById('newProjOverlay');
+        ov.classList.add('open');
+        document.getElementById('npName').value = '';
+        document.getElementById('npType').value = 'empty';
+        document.getElementById('npDesc').value = '';
+        document.getElementById('npReadme').checked = true;
+        setTimeout(function () { document.getElementById('npName').focus(); }, 0);
+        document.getElementById('npCreate').onclick = async function () {
+            var name = document.getElementById('npName').value.trim();
+            if (!name) { Lib.toast(window.I18n.t('newproj.nameRequired'), 'error'); return; }
+            if (/[\\\/]/.test(name) || name.indexOf('..') !== -1) {
+                Lib.toast(window.I18n.t('newproj.nameInvalid'), 'error'); return;
+            }
+            try {
+                await Api.createProject({
+                    name: name,
+                    type: document.getElementById('npType').value,
+                    desc: document.getElementById('npDesc').value.trim(),
+                    readme: document.getElementById('npReadme').checked,
+                });
+                Lib.toast(window.I18n.t('toast.created'), 'success');
+                ov.classList.remove('open');
+                await loadProjects();
+                // 选中并滚动到新项目
+                Store.state.selection = {};
+                Store.state.selection[name] = true;
+                renderList();
+                var card = document.querySelector('.project-card[data-name="' + CSS.escape(name) + '"]');
+                if (card) card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            } catch (err) {
+                Lib.toast(err.message, 'error');
+            }
+        };
+    }
+
     /* 右键菜单（变更 6） */
     var ctxEl = null;
     function closeCtx() { if (ctxEl) { ctxEl.remove(); ctxEl = null; } }
@@ -649,11 +686,12 @@
         ctxEl = document.createElement('div');
         ctxEl.className = 'ctx-menu';
         var items = [
-            { label: '在终端打开', act: 'open' },
-            { label: '在 VS Code 打开', act: 'vscode' },
-            { label: p.pinned ? '取消置顶' : '置顶', act: 'pin' },
-            { label: p.status === '已归档' ? '恢复' : '归档', act: 'archive' },
-            { label: '删除', act: 'del', danger: true },
+            { label: window.I18n.t('action.terminal'), act: 'open' },
+            { label: window.I18n.t('action.vscode'), act: 'vscode' },
+            { label: window.I18n.t('action.explorer'), act: 'explorer' },
+            { label: p.pinned ? window.I18n.t('action.unpin') : window.I18n.t('action.pin'), act: 'pin' },
+            { label: p.status === '已归档' ? window.I18n.t('action.restore') : window.I18n.t('action.archive'), act: 'archive' },
+            { label: window.I18n.t('action.delete'), act: 'del', danger: true },
         ];
         ctxEl.innerHTML = items.map(function (it) {
             return '<button class="ctx-item' + (it.danger ? ' danger' : '') + '" data-act="' +
@@ -754,8 +792,8 @@
     function renderServerInfo() {
         var el = document.getElementById('serverInfo');
         var s = Store.state.serverInfo || {};
-        el.innerHTML = '项目根：' + Lib.esc(s.projects_root || '—') +
-            '<br>端口：' + Lib.esc(String(s.port || '—'));
+        el.innerHTML = window.I18n.t('sidebar.root') + '：' + Lib.esc(s.projects_root || '—') +
+            '<br>' + window.I18n.t('sidebar.port') + '：' + Lib.esc(String(s.port || '—'));
     }
 
     /* ===================== 全局快捷键 ===================== */
@@ -829,6 +867,7 @@
         doOpen: doOpen,
         doArchive: doArchive,
         doDelete: doDelete,
+        openNewProject: openNewProject,
         settings: app.settings,
         saveSettings: function () { Lib.saveSettings(app.settings); },
         renderServerInfo: renderServerInfo,
