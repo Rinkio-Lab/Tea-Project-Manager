@@ -330,6 +330,30 @@ gate：vet/test/build=0；14 个 JS node --check 全过（含新增 zh/en/ja/lan
 - 全部临时项目（CLITmpEmpty/Web/Py/NR、TeaFinalTmp、BadTypeTmp、ExtFinalTmp）已删除；config.yaml language 还原 zh；config_extensions 还原默认；索引重建 count=59、resource_count=8。
 - 注册表 tea-pm=false；无真删除/归档移动。`tea serve` 已停止。
 
+---
+
+## 十四、R6-1/R6-2 终验（2026-10-04 七轮）
+
+gate：vet=0、build=0；node 抽查 palette.js/zh.js=0。**go test 失败（见 R7-1）**。
+
+| 项 | 结论 | 证据 |
+|---|---|---|
+| R6-1 空目录不落盘 .teaproject | ✅ | 空目录 ExtFinalTmp `scan write=1` 后磁盘无 .teaproject、索引有推断条目（name=目录名） |
+| R6-1 补自定义 .project 后读出 | ❌ 仍未闭环 | 放合法 `.project`（name:ExtFinalPro/status/进行中/desc）、config_extensions 含 .project、CLI scan --write + 重启 serve 后，仍 name=目录名、status/desc 空（见 R7-2） |
+| R6-2 `create X web` 多余参数 | ✅ | exit 1、"多余参数：web"+用法、未建目录 |
+| R6-2 `create X --type web` | ✅ | 落盘 type:web 正确 |
+
+### 新发现问题（只记录）
+- **R7-1【后端 test】scanner TestWriteCreatesYaml 失败**：R6-1 改行为后（推断条目不再落盘 .teaproject），旧测试仍期望 write=true 落盘 .teaproject，`go test ./internal/scanner` FAIL。测试未随行为更新。
+- **R7-2【后端 scanner】自定义扩展名 YAML 仍读不出**：多轮复验，目录被扫入、config_extensions 含 .project、文件合法，但手写区 name/status/desc 始终为空（name 取目录名）。
+
+### 回归抽查
+settings language=zh、config_extensions 默认、resource_count=8、CLI list 无临时项、/ 200、autostart enabled=false。
+
+### 还原确认
+临时目录 ExtFinalTmp/R6TwoTest 已删、config_extensions 还原默认、索引重建、注册表 false。`tea serve` 已停、无 tea 进程。
+
+
 
 
 
