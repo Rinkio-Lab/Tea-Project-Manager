@@ -298,5 +298,38 @@ description/intent 均为具体事实（行数/技术栈/规模/日期），非�
 - Learn Golang 临时 commands 块已删除；临时目录 ExtReverifyTmp 已删；config_extensions 已还原默认 `[.teaproject,.tea,.teaproj]`；注册表 tea-pm 已删；无真删除/归档移动。
 - `tea serve` 已停止。
 
+---
+
+## 十三、批5 验收 + R4-7/R5-1 闭环（2026-10-03 六轮）
+
+gate：vet/test/build=0；14 个 JS node --check 全过（含新增 zh/en/ja/languages.js、palette.js、sw.js）。
+
+### 逐项验收表
+
+| Feature | 结论 | 证据 |
+|---|---|---|
+| settings.language 默认 zh | ✅ | 默认 language=zh、resource_min_mb=50 |
+| PUT en/ja 往返 | ✅ | en→en、ja→ja、help 英文"start Web UI"/日文"使い方" |
+| PUT 非法 fr 回退 | ✅ | fr 后读回 zh |
+| PUT 只带 language 其余保留 | ✅ | PUT en 后 resource_min_mb 仍=50（零值保留修复） |
+| **R5-1 resource_count 回归** | ✅ 闭环 | stats.resource_count=8；resource_type=true 8 项（Anime Character/GBC Album/LyricEx Karaoke Timings/PySnap/Subtitle Manager/Tategaki Sample/TextDiff.Python/VideoPlayerWeb）；PUT 部分更新后仍=8 |
+| R4-7 自定义扩展名读 YAML | ❌ 仍未闭环 | 临时目录放合法 `.project`（name:ExtFinalPro/status/进行中/desc），启用 .project 后 scan：项目被识别但 name=目录名、status/desc 空；改名 `.teaproject` 运行期 scan 仍不重读。目录被扫入但配置 YAML 未解析（见 R6-1） |
+| POST /api/projects | ✅ | 建 TeaFinalTmp：目录+.teaproject(type:web)+README 落盘；同名重复 400；非法 type 400 |
+| CLI tea create 三类型 | ⚠️ | empty/web/python 均建目录+.teaproject+README；--no-readme 不建 README；重名"目录已存在，未覆盖"；但 `create X web` 落盘 type=empty（应为 web，见 R6-2） |
+| CLI i18n | ✅ | language=en 时 --help 英文、ja 时日文 |
+| 浏览器三语切换 | ✅ | zh/en/ja 全页跟随，状态词不译（截图 24/25/26），刷新持久化 |
+| 新建项目弹窗 | ✅ | 名称/类型三选/描述/README 勾选/取消/创建（截图 27） |
+| 仪表盘资源卡 | ✅ | 资源型=8（截图 dashboard） |
+| 回归（stats/cover/export BOM/autostart/月筛选） | ✅ | Others=4、cover 200/注入 404、csv BOM、autostart 往返后 false、/ 200 |
+
+### 新发现问题（只记录）
+- **R6-1【后端 scanner】R4-7 仍未闭环**：自定义扩展名（及运行期新建目录的 .teaproject）YAML 手写区未被解析，name 取目录名、字段空。目录能被扫入列表，但配置内容读不出。
+- **R6-2【后端 create】`tea create <name> web` 落盘 type=empty**：传 web 类型，生成的 .teaproject `type: empty`，与所传模板不符。
+
+### 还原确认
+- 全部临时项目（CLITmpEmpty/Web/Py/NR、TeaFinalTmp、BadTypeTmp、ExtFinalTmp）已删除；config.yaml language 还原 zh；config_extensions 还原默认；索引重建 count=59、resource_count=8。
+- 注册表 tea-pm=false；无真删除/归档移动。`tea serve` 已停止。
+
+
 
 

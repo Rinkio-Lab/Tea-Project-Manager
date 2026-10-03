@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.2.0（2026-10-03 · 新建项目 / 三语 i18n）
+
+### 操作集成
+- `tea create <name> <empty|web|python>` CLI 新建项目（.teaproject + README，--no-readme 变体，重名不覆盖）。
+- `POST /api/projects` 新建端点：建目录 + .teaproject 手写区 + README；重名 400、非法 type 400。
+- 工具栏"新建"弹窗：填名/类型/描述/是否 README，toast + 列表刷新。
+
+### 国际化
+- 前端整页三语 zh/en/ja（侧栏/工具栏/设置全分组/详情/图表标题/空态/toast/右键菜单），刷新持久化。
+- CLI 三语字典：--help 与 list 表头跟随 config language。
+- settings.language 配置（zh/en/ja）；非法值回退 zh；PUT 只带 language 时其余字段不归零。
+
+### 修复
+- R5-1：resource_count 回归修复，恢复为 8（GBC Album / Anime Character 等 resource_type=true）。
+- R4-7：自定义扩展名项目配置文件解析（复验仍部分未闭环，见验证报告）。
+- PUT settings 零值字段保留（resource_min_mb 等不被部分更新清零）。
+
 ## v1.1.0（2026-10-03 · 健康度 / 陈年 / 备份 / 托盘）
 
 ### UI 迭代

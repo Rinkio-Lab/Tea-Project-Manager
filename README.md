@@ -41,6 +41,9 @@ go build -o tea.exe .
 | `tea edit <名字>` | 用系统默认编辑器打开 `.teaproject` |
 | `tea open <名字>` | 在资源管理器打开项目目录 |
 | `tea actions <名字>` | 列出该项目自定义 actions |
+| `tea create <名字> <empty\|web\|python>` | 新建项目目录 + `.teaproject` + README；`--no-readme` 不建 README；重名报错不覆盖 |
+
+界面语言三语：设置面板"界面语言"或 config.yaml `language: zh|en|ja`，整页（侧栏/工具栏/设置/详情/图表/空态）跟随；CLI 帮助与表头也跟随。状态词（在弄/完工/草稿）保持原词不译。
 
 ## config.yaml
 
