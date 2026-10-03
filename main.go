@@ -12,16 +12,21 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"tea-pm/internal/config"
 	"tea-pm/internal/meta"
 	"tea-pm/internal/scanner"
 	"tea-pm/internal/server"
+	"tea-pm/internal/tray"
 )
 
 func main() {
@@ -87,7 +92,7 @@ func loadCfg() *config.Config {
 
 // scanOnce 是 CLI 各子命令共用的"扫一次拿项目列表"辅助。
 func scanOnce(cfg *config.Config, write bool) []*meta.Project {
-	res, err := scanner.Scan(cfg.ProjectsRoot, write)
+	res, err := scanner.Scan(cfg.ProjectsRoot, write, cfg.ConfigExtensions)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "扫描失败:", err)
 		os.Exit(1)
@@ -110,10 +115,18 @@ func scanOnce(cfg *config.Config, write bool) []*meta.Project {
 
 func cmdServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
+	portFlag := fs.Int("port", 0, "覆盖 config.yaml 的端口（0=用配置值）")
+	verbose := fs.Bool("verbose", false, "输出详细请求日志（含 query string）")
+	trayFlag := fs.Bool("tray", false, "托盘常驻模式：隐藏控制台，由托盘菜单控制退出")
 	fs.Parse(args)
 
 	cfg := loadCfg()
-	srv, err := server.New(cfg)
+	// 命令行 --port 优先级高于 config.yaml；改内存里的 cfg.Port，
+	// 这样 GET /api/settings 返回的就是实际生效端口。
+	if *portFlag > 0 {
+		cfg.Port = *portFlag
+	}
+	srv, err := server.New(cfg, *verbose)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "初始化服务失败:", err)
 		os.Exit(1)
@@ -121,9 +134,58 @@ func cmdServe(args []string) {
 	exeDir, _ := config.Dir()
 	webDir := filepath.Join(exeDir, "web")
 	r := srv.Router(webDir)
+	// 开机自启路由（独立文件，不改动 server.go）
+	server.RegisterAutostartRoutes(r)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Bind, cfg.Port)
-	fmt.Printf("tea serve → http://%s/  (projects_root=%s)\n", addr, cfg.ProjectsRoot)
+	url := fmt.Sprintf("http://%s/", addr)
+
+	if *trayFlag {
+		// 托盘常驻：隐藏控制台 → 后台 goroutine 启 HTTP → 主线程跑 Win32 消息循环
+		tray.HideConsole()
+		log.Printf("[托盘] 进入托盘模式，HTTP → %s (projects_root=%s)", url, cfg.ProjectsRoot)
+
+		httpSrv := &http.Server{Addr: addr, Handler: r}
+		go func() {
+			if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Printf("[错误] HTTP 服务异常退出: %v", err)
+			}
+		}()
+
+		err := tray.Run(tray.Options{
+			Title: "Tea PM — 项目管理器",
+			OnOpenUI: func() {
+				// cmd /c start 用默认浏览器打开；start 语法要求空 title 占位
+				_ = exec.Command("cmd", "/c", "start", "", url).Start()
+			},
+			OnRescan: func() {
+				// 跨包不便直接调 Server.rescan（未导出），用本地 HTTP 复用现成逻辑
+				log.Printf("[托盘] 触发重新扫描 POST %sapi/scan", url)
+				resp, err := http.Post(url+"api/scan", "application/json", nil)
+				if err != nil {
+					log.Printf("[托盘] 重新扫描失败: %v", err)
+					return
+				}
+				resp.Body.Close()
+			},
+			OnExit: func() {
+				// 优雅关 HTTP：最多等 5s，避免 SSE /runs/.../stream 长连接挂住退出
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+				if err := httpSrv.Shutdown(ctx); err != nil {
+					log.Printf("[托盘] HTTP 关闭超时/出错: %v", err)
+				}
+				log.Printf("[托盘] HTTP 已关闭")
+			},
+		})
+		if err != nil {
+			log.Printf("[托盘] 启动失败: %v", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	fmt.Printf("tea serve → %s  (projects_root=%s)\n", url, cfg.ProjectsRoot)
 	if err := r.Run(addr); err != nil {
 		fmt.Fprintln(os.Stderr, "服务启动失败:", err)
 		os.Exit(1)

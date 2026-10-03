@@ -29,9 +29,11 @@ type Action struct {
 
 // GitInfo 是自动区里的 git 探测结果。
 type GitInfo struct {
-	Repo    bool   `yaml:"repo" json:"repo"`
-	Commits int    `yaml:"commits,omitempty" json:"commits,omitempty"`
-	Remote  string `yaml:"remote,omitempty" json:"remote,omitempty"`
+	Repo         bool   `yaml:"repo" json:"repo"`
+	Commits      int    `yaml:"commits,omitempty" json:"commits,omitempty"`
+	Remote       string `yaml:"remote,omitempty" json:"remote,omitempty"`
+	Dirty        bool   `yaml:"dirty,omitempty" json:"dirty,omitempty"`
+	HasGitIgnore bool   `yaml:"has_gitignore,omitempty" json:"has_gitignore,omitempty"`
 }
 
 // Project 对应一个项目目录的全部元数据。
@@ -61,21 +63,44 @@ type Project struct {
 	TotalSizeMB float64  `yaml:"total_size_mb,omitempty" json:"total_size_mb,omitempty"`
 	Git         *GitInfo `yaml:"git,omitempty" json:"git,omitempty"`
 	Deps        []string `yaml:"deps,omitempty" json:"deps,omitempty"`
+	// DepsMissing 缺失的依赖目录提示（如 有 package.json 但无 node_modules）。
+	DepsMissing []string `yaml:"deps_missing,omitempty" json:"deps_missing,omitempty"`
 
 	// ---- 操作与备注（手写）----
 	Actions []Action `yaml:"actions,omitempty" json:"actions,omitempty"`
 	Notes   string   `yaml:"notes,omitempty" json:"notes,omitempty"`
+	// Commands 常用命令集（手写，扫描器绝不覆盖）。
+	Commands []Command `yaml:"commands,omitempty" json:"commands,omitempty"`
 
 	// AI 标记：手写区由扫描器推断填充时置 true，用户"采纳"后清除。
 	AI bool `yaml:"ai,omitempty" json:"ai,omitempty"`
 
 	// ---- 仅索引/运行期字段（不落 .teaproject）----
-	// RelPath 是相对 projects_root 的路径（Windows 反斜杠），作为项目唯一键。
 	RelPath string `yaml:"-" json:"rel_path"`
-	// Order 排序号，仅写 .tea-index.json。
-	Order int `yaml:"-" json:"order"`
-	// Archived 运行期标记：项目位于 _archive/ 下时为 true。不落 yaml。
+	Order   int    `yaml:"-" json:"order"`
+	// Pinned 置顶标记（只写索引）。
+	Pinned bool `yaml:"-" json:"pinned"`
+	// Archived 运行期标记：项目位于 _archive/ 下时为 true。
 	Archived bool `yaml:"-" json:"archived"`
+	// WorkspaceName/WorkspaceColor 运行期归属。
+	WorkspaceName  string `yaml:"-" json:"workspace_name"`
+	WorkspaceColor string `yaml:"-" json:"workspace_color"`
+	// CoverRel 封面图相对路径（存索引，不写 yaml）。
+	CoverRel string `yaml:"-" json:"cover_rel,omitempty"`
+	// ConfigFile 实际读到的配置文件绝对路径（内部用，写回时写这个文件）。
+	ConfigFile string `yaml:"-" json:"-"`
+	// HealthScore 服务端派生 0-100，不落盘。
+	HealthScore int `yaml:"-" json:"health_score"`
+	// Stale 是否超过 stale_months 未活跃，服务端派生。
+	Stale bool `yaml:"-" json:"stale"`
+	// ResourceType 资源型（size>min 且 code_files<max），服务端派生。
+	ResourceType bool `yaml:"-" json:"resource_type"`
+}
+
+// Command 是 .teaproject commands[] 里的一条可执行命令。
+type Command struct {
+	Name    string `yaml:"name" json:"name"`
+	Command string `yaml:"command" json:"command"`
 }
 
 // YamlPath 返回项目目录内 .teaproject 的绝对路径。

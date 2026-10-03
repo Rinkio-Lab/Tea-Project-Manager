@@ -45,7 +45,11 @@ var excludeTopDirs = map[string]bool{
 }
 
 // Scan 扫描 root。write=false 时只读，不写任何 .teaproject。
-func Scan(root string, write bool) (*ScanResult, error) {
+// exts 是配置扩展名优先级列表（如 [".teaproject",".tea"]），决定读哪个文件。
+func Scan(root string, write bool, exts []string) (*ScanResult, error) {
+	if len(exts) == 0 {
+		exts = []string{".teaproject"}
+	}
 	res := &ScanResult{}
 
 	topEntries, err := os.ReadDir(root)
@@ -76,7 +80,7 @@ func Scan(root string, write bool) (*ScanResult, error) {
 				}
 				subDirs, _ := collectProjectDirs(filepath.Join(abs, sub.Name()))
 				for _, dir := range subDirs {
-					p, err := scanOne(root, dir, write, res)
+					p, err := scanOne(root, dir, write, res, exts)
 					if err != nil {
 						continue
 					}
@@ -90,7 +94,7 @@ func Scan(root string, write bool) (*ScanResult, error) {
 			continue
 		}
 		for _, dir := range projDirs {
-			p, err := scanOne(root, dir, write, res)
+			p, err := scanOne(root, dir, write, res, exts)
 			if err != nil {
 				continue
 			}
@@ -139,13 +143,13 @@ func collectProjectDirs(dir string) ([]string, error) {
 }
 
 // scanOne 处理单个项目目录：
-//   - 有 .teaproject → 读进来，只覆写自动区
-//   - 无 .teaproject   → 构造推断 Project（手写区=推断值，ai:true）；write=true 时落盘
+//   - 有配置 → 读进来，只覆写自动区
+//   - 无配置   → 构造推断 Project（手写区=推断值，ai:true）；write=true 时落盘
 // 计数（CreatedYaml/UpdatedAuto）直接写入 res。
-func scanOne(root, dir string, write bool, res *ScanResult) (*meta.Project, error) {
+func scanOne(root, dir string, write bool, res *ScanResult, exts []string) (*meta.Project, error) {
 	rel, _ := filepath.Rel(root, dir)
 
-	existing, err := meta.LoadYaml(dir)
+	existing, _, err := meta.LoadYamlExt(dir, exts)
 	if err != nil {
 		return nil, err
 	}
@@ -288,6 +292,8 @@ func fillAuto(p *meta.Project) {
 
 	p.Git = probeGit(p.Path)
 	p.Deps = probeDeps(p.Path)
+	p.DepsMissing = probeDepsMissing(p.Path)
+	p.CoverRel = findCover(p.Path)
 }
 
 // scanCodeFiles 统计源码文件数与总 KB，跳过 excludeDirs。
@@ -410,6 +416,14 @@ func probeGit(dir string) *meta.GitInfo {
 	if out, err := runGit(dir, "remote", "get-url", "origin"); err == nil {
 		gi.Remote = strings.TrimSpace(out)
 	}
+	// dirty: git status --porcelain 非空 = 有未提交改动
+	if out, err := runGit(dir, "status", "--porcelain"); err == nil {
+		gi.Dirty = strings.TrimSpace(out) != ""
+	}
+	// has_gitignore: 根目录存在 .gitignore
+	if _, err := os.Stat(filepath.Join(dir, ".gitignore")); err == nil {
+		gi.HasGitIgnore = true
+	}
 	return gi
 }
 
@@ -431,15 +445,73 @@ func probeDeps(dir string) []string {
 	return deps
 }
 
-// Sort 按 order 升序；order 相同/为 0 时按名称字典序。
+// probeDepsMissing 检测"有声明文件但依赖目录缺失"：
+//   - pyproject.toml/uv.lock 存在但 .venv 不存在 → 提示 ".venv"
+//   - package.json 存在但 node_modules 不存在 → 提示 "node_modules"
+func probeDepsMissing(dir string) []string {
+	var missing []string
+	hasFile := func(names ...string) bool {
+		for _, n := range names {
+			if _, err := os.Stat(filepath.Join(dir, n)); err == nil {
+				return true
+			}
+		}
+		return false
+	}
+	hasDir := func(name string) bool {
+		fi, err := os.Stat(filepath.Join(dir, name))
+		return err == nil && fi.IsDir()
+	}
+	if hasFile("pyproject.toml", "uv.lock", "requirements.txt", "setup.py") && !hasDir(".venv") {
+		missing = append(missing, ".venv")
+	}
+	if hasFile("package.json") && !hasDir("node_modules") {
+		missing = append(missing, "node_modules")
+	}
+	return missing
+}
+
+// findCover 找项目封面图：优先 cover/ 或 assets/images/，其次根目录；
+// 取第一个 jpg/png/webp（按文件名排序）。返回相对项目目录的路径，无图返回空串。
+func findCover(dir string) string {
+	dirs := []string{"cover", filepath.Join("assets", "images"), ""}
+	exts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".webp": true}
+	for _, sub := range dirs {
+		d := filepath.Join(dir, sub)
+		entries, err := os.ReadDir(d)
+		if err != nil {
+			continue
+		}
+		var cands []string
+		for _, e := range entries {
+			if e.IsDir() {
+				continue
+			}
+			if exts[strings.ToLower(filepath.Ext(e.Name()))] {
+				cands = append(cands, e.Name())
+			}
+		}
+		if len(cands) > 0 {
+			sort.Strings(cands)
+			rel := cands[0]
+			if sub != "" {
+				rel = filepath.Join(sub, rel)
+			}
+			return rel
+		}
+	}
+	return ""
+}
+
+// Sort 排序：pinned 置顶 → order 升序 → 名称字典序。
 func Sort(projects []*meta.Project) {
 	sort.SliceStable(projects, func(i, j int) bool {
 		a, b := projects[i], projects[j]
+		if a.Pinned != b.Pinned {
+			return a.Pinned // pinned=true 排前面
+		}
 		if a.Order != b.Order {
 			return a.Order < b.Order
-		}
-		if a.Order == 0 && b.Order == 0 {
-			return strings.ToLower(a.Name) < strings.ToLower(b.Name)
 		}
 		return strings.ToLower(a.Name) < strings.ToLower(b.Name)
 	})

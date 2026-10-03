@@ -60,7 +60,7 @@ code_files: 999
 func TestMergeHandwrittenPreserved(t *testing.T) {
 	root := setupTree(t)
 
-	res, err := Scan(root, false)
+	res, err := Scan(root, false, []string{".teaproject"})
 	if err != nil {
 		t.Fatalf("Scan: %v", err)
 	}
@@ -100,7 +100,7 @@ func TestMergeHandwrittenPreserved(t *testing.T) {
 func TestFreshProjectInferred(t *testing.T) {
 	root := setupTree(t)
 
-	res, err := Scan(root, false)
+	res, err := Scan(root, false, []string{".teaproject"})
 	if err != nil {
 		t.Fatalf("Scan: %v", err)
 	}
@@ -126,7 +126,7 @@ func TestDryRunDoesNotWrite(t *testing.T) {
 	root := setupTree(t)
 	frPath := filepath.Join(root, "fresh", ".teaproject")
 
-	if _, err := Scan(root, false); err != nil {
+	if _, err := Scan(root, false, []string{".teaproject"}); err != nil {
 		t.Fatalf("Scan dry-run: %v", err)
 	}
 	if _, err := os.Stat(frPath); !os.IsNotExist(err) {
@@ -139,7 +139,7 @@ func TestWriteCreatesYaml(t *testing.T) {
 	root := setupTree(t)
 	frPath := filepath.Join(root, "fresh", ".teaproject")
 
-	if _, err := Scan(root, true); err != nil {
+	if _, err := Scan(root, true, []string{".teaproject"}); err != nil {
 		t.Fatalf("Scan write: %v", err)
 	}
 	data, err := os.ReadFile(frPath)

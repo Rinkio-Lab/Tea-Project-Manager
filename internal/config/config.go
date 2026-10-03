@@ -22,15 +22,45 @@ type Config struct {
 	ProjectsRoot string `yaml:"projects_root" json:"projects_root"`
 	// Theme 默认主题标识，透传给前端。
 	Theme string `yaml:"theme" json:"theme"`
+	// Workspaces 多工作区分组：按 paths 前缀 / projects 精确匹配项目归属。
+	// 只存 config.yaml，绝不写进任何 .teaproject。
+	Workspaces []Workspace `yaml:"workspaces,omitempty" json:"workspaces,omitempty"`
+
+	// StaleMonths 陈年提醒阈值（月）：last_active 早于 now-此值标 stale。默认 6。
+	StaleMonths int `yaml:"stale_months,omitempty" json:"stale_months,omitempty"`
+	// ResourceMinMB / ResourceMaxCodeFiles：资源型判定（size>min 且 code_files<max）。
+	ResourceMinMB      float64 `yaml:"resource_min_mb,omitempty" json:"resource_min_mb,omitempty"`
+	ResourceMaxCodeFiles int   `yaml:"resource_max_code_files,omitempty" json:"resource_max_code_files,omitempty"`
+	// BackupKeep .teaproject 自动备份保留份数，默认 10。
+	BackupKeep int `yaml:"backup_keep,omitempty" json:"backup_keep,omitempty"`
+	// DefaultView 默认首页 grid/table/dashboard。
+	DefaultView string `yaml:"default_view,omitempty" json:"default_view,omitempty"`
+	// ConfigExtensions 配置文件名扩展名集合（有序，顺序即优先级）。
+	// PUT /api/settings 会归一化：.teaproject 永远首位。
+	ConfigExtensions []string `yaml:"config_extensions,omitempty" json:"config_extensions,omitempty"`
+}
+
+// Workspace 是一个用户自定义工作区（如"学习"/"歌词"）。
+type Workspace struct {
+	Name     string   `yaml:"name" json:"name"`
+	Color    string   `yaml:"color" json:"color"`
+	Paths    []string `yaml:"paths" json:"paths"`
+	Projects []string `yaml:"projects" json:"projects"`
 }
 
 // Default 返回内置默认配置。路径用硬编码兜底（本工程面向 Windows 单机）。
 func Default() *Config {
 	return &Config{
-		Bind:         "127.0.0.1",
-		Port:         8080,
-		ProjectsRoot: `E:\Projects`,
-		Theme:        "default",
+		Bind:                 "127.0.0.1",
+		Port:                 8080,
+		ProjectsRoot:         `E:\Projects`,
+		Theme:                "default",
+		StaleMonths:          6,
+		ResourceMinMB:       50,
+		ResourceMaxCodeFiles: 20,
+		BackupKeep:           10,
+		DefaultView:          "grid",
+		ConfigExtensions:     []string{".teaproject", ".tea", ".teaproj"},
 	}
 }
 
@@ -61,6 +91,24 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.ProjectsRoot == "" {
 		cfg.ProjectsRoot = `E:\Projects`
+	}
+	if cfg.StaleMonths == 0 {
+		cfg.StaleMonths = 6
+	}
+	if cfg.ResourceMinMB == 0 {
+		cfg.ResourceMinMB = 50
+	}
+	if cfg.ResourceMaxCodeFiles == 0 {
+		cfg.ResourceMaxCodeFiles = 20
+	}
+	if cfg.BackupKeep == 0 {
+		cfg.BackupKeep = 10
+	}
+	if cfg.DefaultView == "" {
+		cfg.DefaultView = "grid"
+	}
+	if len(cfg.ConfigExtensions) == 0 {
+		cfg.ConfigExtensions = []string{".teaproject", ".tea", ".teaproj"}
 	}
 	return cfg, nil
 }

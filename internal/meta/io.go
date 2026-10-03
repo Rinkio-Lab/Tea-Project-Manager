@@ -4,36 +4,59 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-// LoadYaml 从项目目录读 .teaproject 到 Project。
-// 调用方需先填好 RelPath/Path；读回来后 Name 等字段覆盖之。
-// 文件不存在时返回 (nil, nil)——调用方据此走"推断条目"分支。
-func LoadYaml(dir string) (*Project, error) {
-	data, err := os.ReadFile(filepath.Join(dir, FileName))
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
+// LoadYamlExt 按 exts 顺序在 dir 下找第一个存在的配置文件并读取。
+// 返回 (project, usedPath, error)：
+//   - project: 解析成功的项目；无配置文件时为 nil
+//   - usedPath: 实际读到的文件绝对路径；无配置时为空
+//
+// 自定义扩展名（非 .teaproject/.tea/.teaproj/.tpm）会先做 YAML 探测：
+// yaml.v3 能解析成 map 且 name 非空才算有效；否则跳过该文件继续找下一个。
+func LoadYamlExt(dir string, exts []string) (*Project, string, error) {
+	for _, ext := range exts {
+		ext = strings.TrimSpace(ext)
+		if !strings.HasPrefix(ext, ".") {
+			continue
 		}
-		return nil, err
+		path := filepath.Join(dir, ext)
+		fi, err := os.Stat(path)
+		if err != nil || fi.IsDir() {
+			continue
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, "", err
+		}
+		p := &Project{Path: dir}
+		if err := yaml.Unmarshal(data, p); err != nil {
+			// 自定义扩展名解析失败 → 跳过该文件，继续找下一个
+			continue
+		}
+		// 探测：name 为空 → 不是有效配置（跳过）
+		if p.Name == "" {
+			continue
+		}
+		p.ConfigFile = path
+		return p, path, nil
 	}
-	p := &Project{Path: dir}
-	if err := yaml.Unmarshal(data, p); err != nil {
-		return nil, err
-	}
-	return p, nil
+	return nil, "", nil
 }
 
-// SaveYaml 把 Project 写回它的 .teaproject（原子写）。
-// 注意：Order/RelPath 已用 yaml:"-" 排除，不会落盘。
+// SaveYaml 把 Project 写回它读到的配置文件（p.ConfigFile）。
+// 若 ConfigFile 为空（新项目首次落盘），写默认 .teaproject。
 func SaveYaml(p *Project) error {
 	data, err := yaml.Marshal(p)
 	if err != nil {
 		return err
 	}
-	path := p.YamlPath()
+	path := p.ConfigFile
+	if path == "" {
+		path = p.YamlPath()
+	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
 		return err
