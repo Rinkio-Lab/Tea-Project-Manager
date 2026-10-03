@@ -12,6 +12,7 @@ import (
 	"os"
 	osexec "os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -656,17 +657,15 @@ func (s *Server) putSettings(c *gin.Context) {
 // normalizeExts 归一化 config_extensions：
 //   - 去重
 //   - .teaproject 必须存在且永远在首位
-//   - 元素必须以 "." 开头且不含路径分隔符
+//   - 元素必须匹配 ^\.[A-Za-z0-9_-]+$（点开头+字母数字下划线连字符）
 //   - 非法元素丢弃
 func normalizeExts(in []string) []string {
+	valid := regexp.MustCompile(`^\.[A-Za-z0-9_-]+$`)
 	seen := map[string]bool{}
 	out := []string{}
 	for _, e := range in {
 		e = strings.TrimSpace(strings.ToLower(e))
-		if e == "" || !strings.HasPrefix(e, ".") {
-			continue
-		}
-		if strings.ContainsAny(e, `/\`) {
+		if !valid.MatchString(e) {
 			continue
 		}
 		if seen[e] {
@@ -677,7 +676,6 @@ func normalizeExts(in []string) []string {
 			out = append(out, e)
 		}
 	}
-	// .teaproject 永远首位
 	return append([]string{".teaproject"}, out...)
 }
 
@@ -931,24 +929,23 @@ func (s *Server) listBackups(c *gin.Context) {
 		c.JSON(http.StatusOK, []interface{}{})
 		return
 	}
-	type item struct {
-		File string `json:"file"`
-		Time string `json:"time"`
-		Size int64  `json:"size"`
-	}
-	out := []item{}
+	out := []interface{}{}
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".yaml") {
 			continue
 		}
 		fi, _ := e.Info()
-		out = append(out, item{
-			File: e.Name(),
-			Time: strings.TrimSuffix(e.Name(), ".yaml"),
-			Size: fi.Size(),
+		out = append(out, gin.H{
+			"file": e.Name(),
+			"time": strings.TrimSuffix(e.Name(), ".yaml"),
+			"size": fi.Size(),
 		})
 	}
-	c.JSON(http.StatusOK, out)
+	// 按时间倒序（新备份在前）
+	for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
+		out[i], out[j] = out[j], out[i]
+	}
+	c.JSON(http.StatusOK, gin.H{"versions": out})
 }
 
 // restoreBackup POST /api/backups/restore {project, file}

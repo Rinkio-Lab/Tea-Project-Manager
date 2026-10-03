@@ -42,6 +42,7 @@ type ScanResult struct {
 var excludeTopDirs = map[string]bool{
 	"_legacy": true, "_misc": true, "_scripts": true,
 	"_userscripts": true, "_web-tools": true,
+	".tea-backups": true, // 自动备份目录，不是项目
 }
 
 // Scan 扫描 root。write=false 时只读，不写任何 .teaproject。
