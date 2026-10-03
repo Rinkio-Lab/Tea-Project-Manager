@@ -20,16 +20,32 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"tea-pm/internal/cli18n"
 	"tea-pm/internal/config"
+	"tea-pm/internal/create"
 	"tea-pm/internal/meta"
 	"tea-pm/internal/scanner"
 	"tea-pm/internal/server"
 	"tea-pm/internal/tray"
 )
 
+// dict 是当前 CLI 文案字典（按 config.yaml 的 language 字段切换 zh/en/ja）。
+// 包级变量：main() 启动时初始化，各子命令直接用。
+var dict *cli18n.Dict
+
 func main() {
+	// 先按 config.yaml 的 language 字段选字典（不依赖 cfg.Language，兼容 A 未落地）。
+	// 即便命令行参数还没解析，这里也要读 config 拿语言——失败就静默 fallback zh。
+	if dir, err := config.Dir(); err == nil {
+		lang := cli18n.ReadLangFromYAML(filepath.Join(dir, "config.yaml"))
+		dict = cli18n.Load(lang)
+	} else {
+		dict = cli18n.Load("")
+	}
+
 	if len(os.Args) < 2 {
 		usage()
 		os.Exit(1)
@@ -52,6 +68,8 @@ func main() {
 		cmdOpen(args)
 	case "actions":
 		cmdActions(args)
+	case "create":
+		cmdCreate(args)
 	case "-h", "--help", "help":
 		usage()
 	default:
@@ -62,17 +80,15 @@ func main() {
 }
 
 func usage() {
-	fmt.Print(`tea — Tea Project Manager 2.0
-
-用法:
-  tea serve              启动 Web UI（默认 127.0.0.1:8080）
-  tea list               列出所有项目
-  tea scan [--write]     全量扫描（默认只读预览，--write 才写 .teaproject）
-  tea show <name>        显示单项目详情
-  tea edit <name>        用系统默认编辑器打开 .teaproject
-  tea open <name>        在资源管理器打开项目目录
-  tea actions <name>     列出项目自定义 actions
-`)
+	fmt.Println(dict.UsageHeader)
+	fmt.Println(dict.UsageServe)
+	fmt.Println(dict.UsageList)
+	fmt.Println(dict.UsageScan)
+	fmt.Println(dict.UsageShow)
+	fmt.Println(dict.UsageEdit)
+	fmt.Println(dict.UsageOpen)
+	fmt.Println(dict.UsageActions)
+	fmt.Println(dict.UsageCreate)
 }
 
 // loadCfg 读 config.yaml（首次运行自动写默认值）。
@@ -136,6 +152,8 @@ func cmdServe(args []string) {
 	r := srv.Router(webDir)
 	// 开机自启路由（独立文件，不改动 server.go）
 	server.RegisterAutostartRoutes(r)
+	// 新建项目端点（独立文件，不改动 server.go）
+	server.RegisterCreateRoutes(r, cfg)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Bind, cfg.Port)
 	url := fmt.Sprintf("http://%s/", addr)
@@ -200,7 +218,7 @@ func cmdList(args []string) {
 	cfg := loadCfg()
 	projects := scanOnce(cfg, false)
 
-	fmt.Printf("%-30s %-12s %-8s %-10s %s\n", "NAME", "LANG", "STATUS", "SIZE_MB", "LAST_ACTIVE")
+	fmt.Printf("%-30s %-12s %-8s %-10s %s\n", dict.TblName, dict.TblLang, dict.TblStatus, dict.TblSizeMB, dict.TblLastActive)
 	fmt.Println("--------------------------------------------------------------------------------------------")
 	for _, p := range projects {
 		fmt.Printf("%-30s %-12s %-8s %-10.1f %s\n",
@@ -218,11 +236,11 @@ func cmdScan(args []string) {
 
 	cfg := loadCfg()
 	projects := scanOnce(cfg, *write)
-	mode := "dry-run（只读）"
+	mode := dict.ScanDryRun
 	if *write {
-		mode = "write（已落盘）"
+		mode = dict.ScanWrite
 	}
-	fmt.Printf("扫描完成 [%s]：%d 个项目\n", mode, len(projects))
+	fmt.Printf("%s [%s]\n", fmt.Sprintf(dict.ScanDoneTpl, len(projects)), mode)
 	for _, p := range projects {
 		mark := ""
 		if p.AI {
@@ -366,6 +384,54 @@ func cmdActions(args []string) {
 	}
 	fmt.Fprintf(os.Stderr, "找不到项目: %s\n", name)
 	os.Exit(1)
+}
+
+// ---- tea create <name> ----
+
+func cmdCreate(args []string) {
+	// 手动解析 flags：Go flag 包在第一个位置参数后停止解析，
+	// 而用户习惯 `tea create <name> --type web`，所以这里自己拆。
+	var name, typ, desc string
+	typ = "empty"
+	noReadme := false
+	var positional []string
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "--type" || a == "-type":
+			i++
+			if i < len(args) {
+				typ = args[i]
+			}
+		case strings.HasPrefix(a, "--type="):
+			typ = strings.TrimPrefix(a, "--type=")
+		case a == "--desc" || a == "-desc":
+			i++
+			if i < len(args) {
+				desc = args[i]
+			}
+		case strings.HasPrefix(a, "--desc="):
+			desc = strings.TrimPrefix(a, "--desc=")
+		case a == "--no-readme" || a == "-no-readme":
+			noReadme = true
+		default:
+			positional = append(positional, a)
+		}
+	}
+
+	if len(positional) < 1 {
+		fmt.Fprintln(os.Stderr, dict.ErrNameEmpty)
+		os.Exit(1)
+	}
+	name = positional[0]
+
+	cfg := loadCfg()
+	path, err := create.CreateProject(cfg.ProjectsRoot, name, typ, desc, !noReadme)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	fmt.Printf(dict.CreatedTpl+"\n", path)
 }
 
 func trunc(s string, n int) string {

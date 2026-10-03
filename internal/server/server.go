@@ -629,6 +629,7 @@ func (s *Server) putSettings(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// 零值字段保留当前值（只更新请求里出现的字段）
 	if body.Bind == "" {
 		body.Bind = s.cfg.Bind
 	}
@@ -637,6 +638,34 @@ func (s *Server) putSettings(c *gin.Context) {
 	}
 	if body.ProjectsRoot == "" {
 		body.ProjectsRoot = s.cfg.ProjectsRoot
+	}
+	if body.Theme == "" {
+		body.Theme = s.cfg.Theme
+	}
+	if body.StaleMonths == 0 {
+		body.StaleMonths = s.cfg.StaleMonths
+	}
+	if body.ResourceMinMB == 0 {
+		body.ResourceMinMB = s.cfg.ResourceMinMB
+	}
+	if body.ResourceMaxCodeFiles == 0 {
+		body.ResourceMaxCodeFiles = s.cfg.ResourceMaxCodeFiles
+	}
+	if body.BackupKeep == 0 {
+		body.BackupKeep = s.cfg.BackupKeep
+	}
+	if body.DefaultView == "" {
+		body.DefaultView = s.cfg.DefaultView
+	}
+	if len(body.ConfigExtensions) == 0 {
+		body.ConfigExtensions = s.cfg.ConfigExtensions
+	}
+	// Language 归一化：非 zh/en/ja 回 zh
+	if body.Language == "" {
+		body.Language = s.cfg.Language
+	}
+	if body.Language != "zh" && body.Language != "en" && body.Language != "ja" {
+		body.Language = "zh"
 	}
 	// 归一化 config_extensions：去重 / .teaproject 首位 / 非法丢弃
 	body.ConfigExtensions = normalizeExts(body.ConfigExtensions)

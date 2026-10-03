@@ -36,8 +36,9 @@ type Config struct {
 	// DefaultView 默认首页 grid/table/dashboard。
 	DefaultView string `yaml:"default_view,omitempty" json:"default_view,omitempty"`
 	// ConfigExtensions 配置文件名扩展名集合（有序，顺序即优先级）。
-	// PUT /api/settings 会归一化：.teaproject 永远首位。
 	ConfigExtensions []string `yaml:"config_extensions,omitempty" json:"config_extensions,omitempty"`
+	// Language UI 语言（zh/en/ja），默认 zh。
+	Language string `yaml:"language,omitempty" json:"language,omitempty"`
 }
 
 // Workspace 是一个用户自定义工作区（如"学习"/"歌词"）。
@@ -61,6 +62,7 @@ func Default() *Config {
 		BackupKeep:           10,
 		DefaultView:          "grid",
 		ConfigExtensions:     []string{".teaproject", ".tea", ".teaproj"},
+		Language:             "zh",
 	}
 }
 
@@ -109,6 +111,9 @@ func Load(path string) (*Config, error) {
 	}
 	if len(cfg.ConfigExtensions) == 0 {
 		cfg.ConfigExtensions = []string{".teaproject", ".tea", ".teaproj"}
+	}
+	if cfg.Language == "" {
+		cfg.Language = "zh"
 	}
 	return cfg, nil
 }
