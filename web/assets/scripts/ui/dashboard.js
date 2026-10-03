@@ -36,6 +36,10 @@
             statusCount[p.status] = (statusCount[p.status] || 0) + 1;
             totalSize += Number(p.total_size_mb) || 0;
         });
+        // 资源型数量优先读 /api/stats 的 resource_count，否则前端数
+        var resCount = (Store.state.stats && Store.state.stats.resource_count != null)
+            ? Store.state.stats.resource_count
+            : list.filter(function (p) { return p.resource_type === 'resource'; }).length;
 
         host.innerHTML =
             '<div class="page-head"><h1>仪表盘</h1>' +
@@ -46,7 +50,7 @@
               statCard(list.length, '项目总数') +
               statCard(Object.keys(langSet).length, '语言数') +
               statCard(statusCount['进行中'] || 0, '在弄的') +
-              statCard(list.filter(function (p) { return p.resource_type === 'resource'; }).length, '资源型') +
+              statCard(resCount, '资源型') +
               statCard(Lib.fmtSize(totalSize), '总占用') +
             '</div>' +
             '<div class="charts-grid">' +

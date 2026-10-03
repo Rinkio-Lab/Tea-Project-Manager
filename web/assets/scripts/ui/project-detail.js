@@ -200,25 +200,33 @@
                     var runId = r.run_id;
                     if (typeof EventSource !== 'undefined') {
                         es = new EventSource('/api/runs/' + encodeURIComponent(runId) + '/stream');
-                        es.onmessage = function (ev) {
-                            try {
-                                var d = JSON.parse(ev.data);
-                                if (d.line) { output.textContent += d.line + '\n'; }
-                                if (d.exit_code !== undefined) {
-                                    output.textContent += '\n[退出码 ' + d.exit_code + ']';
-                                    output.scrollTop = output.scrollHeight;
-                                    es.close(); termBtn.hidden = true;
-                                }
-                            } catch (_) { output.textContent += ev.data + '\n'; }
+                        var finishRun = function (code) {
+                            if (code !== undefined && code !== null) {
+                                output.textContent += '\n[退出码 ' + code + ']';
+                            }
+                            output.scrollTop = output.scrollHeight;
+                            es.close();
+                            termBtn.hidden = true;
+                        };
+                        // 后端具名事件：output（纯文本行）/ exit（纯文本退出码）
+                        es.addEventListener('output', function (e) {
+                            output.textContent += e.data + '\n';
+                            output.scrollTop = output.scrollHeight;
+                        });
+                        es.addEventListener('exit', function (e) {
+                            finishRun(parseInt(e.data, 10));
+                        });
+                        // 兜底：普通 message 事件追加原文
+                        es.onmessage = function (e) {
+                            output.textContent += e.data + '\n';
                             output.scrollTop = output.scrollHeight;
                         };
-                        es.onerror = function () { es.close(); termBtn.hidden = true; };
+                        es.onerror = function () { finishRun(); };
+                        termBtn.onclick = function () {
+                            Api.terminate(runId).catch(function () {});
+                            // 后端 terminate 后会发 exit 事件，无需特判
+                        };
                     }
-                    termBtn.onclick = function () {
-                        Api.terminate(runId).catch(function () {});
-                        if (es) es.close();
-                        termBtn.hidden = true;
-                    };
                 } catch (e) {
                     output.textContent += '启动失败：' + e.message + '\n';
                 }

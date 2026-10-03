@@ -59,6 +59,9 @@
                     Store.state.view = dv;
                 }
             } catch (_) { /* 展示本地默认即可 */ }
+            try {
+                Store.state.stats = await Api.stats();
+            } catch (_) {}
             renderServerInfo();
         } catch (_) {
             Store.state.online = false;

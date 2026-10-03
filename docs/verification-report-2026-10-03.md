@@ -269,4 +269,34 @@ description/intent 均为具体事实（行数/技术栈/规模/日期），非�
 - `.tea-backups/Learn Golang/` 一份探测备份保留属正常备份产物。
 - `tea serve` 已停止。
 
+---
+
+## 十二、R4 修复与复验记录（2026-10-03 四轮）
+
+7 个批2/3/4 问题由归属分片修复后独立复验。gate：vet/test/build=0、10 个 JS node --check 全过（含新增 palette.js）。
+
+### 复验结果表（原问题 → 修复者 → 复验证据）
+
+| 编号 | 原问题 | 修复者 | 复验结论 | 证据 |
+|---|---|---|---|---|
+| R4-1 | run SSE 事件格式前后端不匹配 | 前端 B | ✅ 过 | 后端仍发具名事件 `event: output`+纯文本/`event: exit`+码（字节已抓）；project-detail.js:212/216 改 `addEventListener('output'/'exit')`；浏览器点"hi"回显 `$ hi`+ping 输出+`[退出码 0]`（截图 22） |
+| R4-2 | /api/backups 返回单对象 | 后端 A | ✅ 过 | `GET ?project=Learn Golang` 现返回 `{"versions":[{"file":..,"size":..,"time":..}]}`，与前端 `r.versions\|\|r` 兼容 |
+| R4-3 | .tea-backups 扫入列表首位 | 后端 A | ✅ 过 | /api/projects count=59、无 .tea-backups；浏览器网格首位正常 |
+| R4-4 | Ctrl+K 命令面板未实现 | 前端 B | ✅ 过 | palette.js 已加载（index.html:122）；Ctrl+K/调 `Palette.open()` 弹面板；输"歌词"过滤出 16 项；Esc 关闭（截图 21）。注：面板渲染在左下角而非居中模态，属 CSS 小瑕疵，不影响功能 |
+| R4-5 | 资源型卡未读 resource_count | 前端 B | ⚠️ 半过 | 仪表盘"资源型"卡现读 stats.resource_count 并显示数字（前端修复生效）；但后端 resource_count=0（见 R5-1 回归），卡显示 0 而非 8（截图 23） |
+| R4-6 | config_extensions 不丢非法值 | 后端 A | ✅ 过 | PUT `[.teaproject,.bad!!!,.tea]` 读回只剩 `.teaproject\|.tea`，非法值丢弃 |
+| R4-7 | 自定义扩展名不读 YAML | 后端 A | ❌ 仍失败 | _archive 临时目录放合法 `.project`（name/status/description），加 `.project` 到 config_extensions 后 scan：项目被识别但 name=目录名、status/desc 全空；改名 `<dir>.project` 重扫仍空。修了一半（扩展名生效、目录被扫入）但 YAML 未解析 |
+
+### 新回归
+- **R5-1【后端 scanner】resource_type 全 False、stats.resource_count=0**：本轮修复后 GBC Album / Anime Character / MCFontPack / Blog.Assets 等 resource_type 由 True 变 False，resource_count 从 8 掉到 0。疑 R4-7 或 Others 迁移改动资源判定逻辑引入。仪表盘资源型卡因此显示 0。
+
+### 回归抽查
+- /api/projects count=59、/api/stats total=59 active/Others=4 聚合正确、时间线跨 2023-07~2026-10 多月份。
+- cover 200 image/png、路径注入 404；export csv 首字节 BOM(EF BB BF)；autostart PUT true 注册表出现→PUT false 删除（已还原 false）；/ 200。
+
+### 还原确认
+- Learn Golang 临时 commands 块已删除；临时目录 ExtReverifyTmp 已删；config_extensions 已还原默认 `[.teaproject,.tea,.teaproj]`；注册表 tea-pm 已删；无真删除/归档移动。
+- `tea serve` 已停止。
+
+
 

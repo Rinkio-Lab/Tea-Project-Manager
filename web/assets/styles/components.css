@@ -228,6 +228,58 @@
     margin-top: 8px;
 }
 
+/* Ctrl+K 命令面板 */
+.palette-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12vh;
+}
+
+.palette {
+    width: 560px;
+    max-width: 90vw;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.palette input {
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 14px;
+    font-size: 14px;
+    background: transparent;
+    color: var(--text);
+    outline: none;
+}
+
+.palette-list { max-height: 320px; overflow: auto; }
+
+.palette-item {
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.palette-item.active { background: var(--bg-elev); }
+
+.palette-h-tag { color: var(--text-muted); font-size: 11px; }
+
+.palette-hint {
+    padding: 6px 14px;
+    font-size: 11px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+}
+
 /* 卡片元信息行禁止体积文本截断换行 */
 .card-meta span {
     white-space: nowrap;

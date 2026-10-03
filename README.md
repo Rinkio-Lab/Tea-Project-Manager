@@ -16,6 +16,7 @@
 - 备份 / 导出 / 恢复：每次写盘前自动留 `.tea-backups/<项目>/<时间戳>.yaml`（保留 `backup_keep` 份）；设置里可一键恢复；列表可导出 JSON / CSV（UTF-8 BOM）/ Markdown。
 - 托盘与自启：`tea serve --tray` 进系统托盘；`/api/autostart` 写注册表开机自启。
 - PWA：manifest + service worker，localhost 可安装、可离线开壳。
+- 命令面板：Ctrl+K 模糊搜项目 / 切视图 / 一键开详情，↑↓ Enter Esc 操作。
 
 ## 构建运行
 
