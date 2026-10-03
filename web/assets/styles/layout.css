@@ -1,0 +1,268 @@
+/* =========================================================
+   layout.css — 三栏骨架：侧栏导航 + 内容区 + 设置抽屉
+   ========================================================= */
+
+.app {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--bg-primary);
+    transition: background var(--transition);
+}
+
+/* ---------- 侧边栏 ---------- */
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 14px 14px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.sidebar-brand {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-color);
+    user-select: none;
+}
+
+.sidebar-brand span {
+    color: var(--accent);
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 16px;
+}
+
+.sidebar-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 8px 4px 4px;
+}
+
+.sidebar-status {
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    line-height: 1.6;
+    word-break: break-all;
+}
+
+/* ---------- 导航项 ---------- */
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    border-left: 2px solid transparent;
+    transition: background var(--transition), color var(--transition);
+}
+
+.sidebar-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.sidebar-btn.active {
+    background: var(--bg-active);
+    color: var(--text-primary);
+    border-left-color: var(--accent);
+}
+
+.sidebar-btn .icon {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-btn .label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-btn .count {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 保存的视图项里的删除小叉 */
+.view-x {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.view-x:hover {
+    color: var(--danger);
+}
+
+/* ---------- 主内容 ---------- */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-secondary);
+    transition: background var(--transition);
+    min-width: 0;
+}
+
+.view-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#viewContent {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#viewContent.view-anim {
+    animation: view-in 0.24s ease;
+}
+
+@keyframes view-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- 设置抽屉（右侧滑出） ---------- */
+.settings-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 340px;
+    max-width: 88vw;
+    background: var(--bg-sidebar);
+    border-left: 1px solid var(--border-color);
+    box-shadow: var(--shadow-hover);
+    z-index: 80;
+    transform: translateX(100%);
+    transition: transform var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-drawer.open {
+    transform: translateX(0);
+}
+
+.drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-head h2 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 18px;
+}
+
+.drawer-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 70;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition);
+}
+
+.drawer-mask.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 移动壳组件默认隐藏 */
+.mobile-topbar,
+.bottom-nav {
+    display: none;
+}
+
+.bottom-nav-slot {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 2px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+}
+
+.bottom-nav-slot .nav-label {
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.bottom-nav-slot:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.bottom-nav-slot.active {
+    background: var(--bg-active);
+    color: var(--accent);
+}

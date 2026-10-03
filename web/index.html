@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tea PM · 项目管家</title>
+<link rel="stylesheet" href="assets/styles/tokens.css">
+<link rel="stylesheet" href="assets/styles/base.css">
+<link rel="stylesheet" href="assets/styles/layout.css">
+<link rel="stylesheet" href="assets/styles/components.css">
+<link rel="stylesheet" href="assets/styles/responsive.css">
+<script>
+// 启动前先按上次设置上色，避免闪白
+(function () {
+    try {
+        var s = JSON.parse(localStorage.getItem('tea-settings-v1') || '{}');
+        var dark = s.theme === 'dark' ||
+            (s.theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+})();
+</script>
+</head>
+<body>
+<div class="app" id="app" data-theme="light">
+
+  <!-- 侧栏导航 -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">Tea<span>PM</span></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">导航</div>
+      <button class="sidebar-btn" data-nav="grid"><span class="icon">▦</span><span class="label">网格</span></button>
+      <button class="sidebar-btn" data-nav="table"><span class="icon">☰</span><span class="label">表格</span></button>
+      <button class="sidebar-btn" data-nav="dashboard"><span class="icon">◔</span><span class="label">仪表盘</span></button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">保存的视图</div>
+      <div id="savedViewsHost"></div>
+    </div>
+
+    <div class="sidebar-status" id="serverInfo">
+      <button class="sidebar-btn" id="settingsBtn" style="margin-bottom:8px"><span class="icon">⚙</span><span class="label">设置</span></button>
+    </div>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="main">
+    <div class="service-notice" id="serviceNotice">本地服务未启动 — 下面是空态，跑起来 tea serve 后自动加载</div>
+
+    <div class="view-container">
+      <div id="toolbarHost"></div>
+      <div id="viewContent"></div>
+    </div>
+  </main>
+
+  <!-- 移动壳：顶栏 + 底部导航 -->
+  <div class="mobile-topbar">
+    <div class="sidebar-brand">Tea<span>PM</span></div>
+    <button class="ctrl-btn" id="settingsBtn2" title="设置">⚙</button>
+  </div>
+  <div class="bottom-nav">
+    <button class="bottom-nav-slot" data-nav="grid"><span>▦</span><span class="nav-label">网格</span></button>
+    <button class="bottom-nav-slot" data-nav="table"><span>☰</span><span class="nav-label">表格</span></button>
+    <button class="bottom-nav-slot" data-nav="dashboard"><span>◔</span><span class="nav-label">仪表盘</span></button>
+    <button class="bottom-nav-slot" id="settingsBtn3"><span>⚙</span><span class="nav-label">设置</span></button>
+  </div>
+</div>
+
+<!-- 设置抽屉 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<div class="settings-drawer" id="drawer">
+  <div class="drawer-head">
+    <h2>设置</h2>
+    <button class="ctrl-btn" id="drawerClose">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<!-- 快捷键帮助 -->
+<div class="overlay" id="helpOverlay">
+  <div class="modal">
+    <div class="modal-body">
+      <h3>快捷键</h3>
+      <table class="help-table">
+        <tr><td><span class="keycap">/</span></td><td>聚焦搜索</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">g</span></td><td>网格视图</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">t</span></td><td>表格视图</td></tr>
+        <tr><td><span class="keycap">g</span> <span class="keycap">d</span></td><td>仪表盘</td></tr>
+        <tr><td><span class="keycap">e</span></td><td>编辑当前项目</td></tr>
+        <tr><td><span class="keycap">o</span></td><td>在终端打开</td></tr>
+        <tr><td><span class="keycap">a</span></td><td>归档当前项目</td></tr>
+        <tr><td><span class="keycap">Ctrl+S</span></td><td>保存编辑</td></tr>
+        <tr><td><span class="keycap">?</span></td><td>看这张表</td></tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="helpClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- echarts：本地 vendor，相对路径引用，不连外网 -->
+<script src="vendor/echarts/echarts.min.js"></script>
+
+<script src="assets/scripts/lib.js"></script>
+<script src="assets/scripts/theme.js"></script>
+<script src="assets/scripts/store.js"></script>
+<script src="assets/scripts/api.js"></script>
+<script src="assets/scripts/ui/views.js"></script>
+<script src="assets/scripts/ui/project-detail.js"></script>
+<script src="assets/scripts/ui/dashboard.js"></script>
+<script src="assets/scripts/ui/settings-panel.js"></script>
+
+<script>
+// 抽屉事件（简单 bootstrap）
+document.getElementById('drawerClose').addEventListener('click', function () {
+  window.SettingsPanel.close();
+});
+document.getElementById('drawerMask').addEventListener('click', function () {
+  window.SettingsPanel.close();
+});
+document.getElementById('settingsBtn2').addEventListener('click', function () {
+  window.SettingsPanel.open();
+});
+document.getElementById('settingsBtn3').addEventListener('click', function () {
+  window.SettingsPanel.open();
+});
+document.getElementById('helpClose').addEventListener('click', function () {
+  document.getElementById('helpOverlay').classList.remove('open');
+});
+// 底部导航移动壳
+document.querySelectorAll('.bottom-nav-slot[data-nav]').forEach(function (b) {
+  b.addEventListener('click', function () { window.App.go(b.dataset.nav); });
+});
+// 启动
+window.App.init();
+</script>
+</body>
+</html>

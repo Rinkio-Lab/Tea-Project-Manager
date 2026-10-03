@@ -1,0 +1,259 @@
+/* =========================================================
+   tokens.css — 设计令牌（继承自 New Gaokao Score Assigner）
+   全局重置 / 亮色 / 暗色 / 莫兰迪皮肤 / 高对比 / 滚动条
+   全部 CSS 变量驱动，无类名切换
+   ========================================================= */
+
+/* ---------- 全局重置与基础 ---------- */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 全局方形锐利审美：组件需要圆角时显式还原（如色板圆形 swatch） */
+* {
+    border-radius: 0 !important;
+}
+
+/* 视觉隐藏但保留给读屏 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- 亮色主题（默认） ---------- */
+:root {
+    /* 背景层级 */
+    --bg-primary: #f6f4f0;
+    --bg-secondary: #ffffff;
+    --bg-sidebar: #eae7e2;
+    --bg-card: #ffffff;
+    --bg-hover: #e8e4de;
+    --bg-active: #d6d0c8;
+
+    /* 文字三级（过 WCAG AA） */
+    --text-primary: #1e1a16;
+    --text-secondary: #5a524a;
+    --text-muted: #6a625c;
+
+    /* 描边 / 阴影 */
+    --border-color: #d6d0c8;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    /* 强调色三件套 */
+    --accent: #8a7a6a;
+    --accent-hover: #6a5a4a;
+    --accent-bg: #e8e0d8;
+
+    /* 滚动条 */
+    --scrollbar-track: #e8e4de;
+    --scrollbar-thumb: #c8c0b8;
+    --scrollbar-thumb-hover: #b0a898;
+
+    /* 表格 / 高亮 */
+    --highlight-bg: #f0ece6;
+    --highlight-border: #b0a898;
+    --table-border: #d6d0c8;
+    --table-header-bg: #eae7e2;
+    --placeholder-color: #b0a898;
+
+    /* 状态语义色（状态徽章用，不进主题变量体系） */
+    --status-draft: #9a938a;   /* 草稿=灰 */
+    --status-active: #6e9e7a;   /* 在弄=绿 */
+    --status-done: #5a7ea8;     /* 完工=蓝 */
+    --status-unsure: #c0a04a;  /* 说不清=黄 */
+
+    /* 危险色（语义固定，不进主题） */
+    --danger: #c0392b;
+    --danger-text: #c0392b;
+    --danger-hover-bg: rgba(192, 57, 43, 0.08);
+
+    /* 动效（全局唯一过渡时长） */
+    --transition: 0.25s ease;
+
+    /* 字号（用户可调，变量化） */
+    --ui-size: 14px;
+
+    /* 字体栈（CJK 优先；系统字体兜底，零外部 CDN） */
+    --font: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei',
+        'Source Han Sans SC', 'Hiragino Sans GB', system-ui, sans-serif;
+    --font-jp: 'M PLUS Rounded 1c', 'Hiragino Sans',
+        'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    --font-mono: 'Cascadia Mono', 'JetBrains Mono', Consolas,
+        'Courier New', monospace;
+}
+
+/* ---------- 暗色主题 ---------- */
+[data-theme='dark'] {
+    --bg-primary: #181614;
+    --bg-secondary: #1e1c18;
+    --bg-sidebar: #141210;
+    --bg-card: #22201c;
+    --bg-hover: #322e2a;
+    --bg-active: #3a3632;
+
+    --text-primary: #ece8e2;
+    --text-secondary: #b8b0a8;
+    --text-muted: #9b938a;
+
+    --border-color: #3a3632;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.6);
+
+    --accent: #b8a898;
+    --accent-hover: #d0c8b8;
+    --accent-bg: #2e2a26;
+
+    --scrollbar-track: #2e2a26;
+    --scrollbar-thumb: #4a4642;
+    --scrollbar-thumb-hover: #5a5652;
+
+    --highlight-bg: #2e2a26;
+    --highlight-border: #5a5652;
+    --table-border: #3a3632;
+    --table-header-bg: #2e2a26;
+    --placeholder-color: #6a625a;
+
+    --status-active: #7fb88c;
+    --status-done: #7ea2cc;
+    --status-unsure: #d8b85e;
+
+    --danger-text: #e07872;
+}
+
+/* ---------- 莫兰迪配色皮肤（亮色生效整块；暗色仅强调色） ---------- */
+
+/* 烟灰粉 Dusty Rose */
+#app[data-theme='light'][data-color-theme='dusty-rose'] {
+    --accent: #b8958a; --accent-hover: #9a7a6e; --accent-bg: #f0e6e2;
+    --bg-primary: #f5f0ee; --bg-secondary: #fdfbfa; --bg-sidebar: #ede5e2;
+    --bg-card: #fdfbfa; --bg-hover: #e8deda; --bg-active: #d8ccc8;
+    --border-color: #d8ccc8; --highlight-bg: #f2eae6; --highlight-border: #c8b4ae;
+    --scrollbar-track: #e8deda; --scrollbar-thumb: #d0c4c0; --scrollbar-thumb-hover: #c0b0aa;
+    --table-border: #d8ccc8; --table-header-bg: #ede5e2; --placeholder-color: #c0b0aa;
+}
+
+/* 雾灰蓝 Misty Blue */
+#app[data-theme='light'][data-color-theme='misty-blue'] {
+    --accent: #8a9aa8; --accent-hover: #6e7e8c; --accent-bg: #e2e8ee;
+    --bg-primary: #eef2f5; --bg-secondary: #f8fafb; --bg-sidebar: #e2e8ed;
+    --bg-card: #f8fafb; --bg-hover: #dce4ea; --bg-active: #ccd6de;
+    --border-color: #ccd6de; --highlight-bg: #e6ecf2; --highlight-border: #b0bec8;
+    --scrollbar-track: #dce4ea; --scrollbar-thumb: #c4ced6; --scrollbar-thumb-hover: #b0bac2;
+    --table-border: #ccd6de; --table-header-bg: #e2e8ed; --placeholder-color: #b0bac2;
+}
+
+/* 鼠尾草绿 Sage Green */
+#app[data-theme='light'][data-color-theme='sage-green'] {
+    --accent: #8a9e8a; --accent-hover: #6e826e; --accent-bg: #e2e8e2;
+    --bg-primary: #eef2ee; --bg-secondary: #f8faf8; --bg-sidebar: #e2e8e2;
+    --bg-card: #f8faf8; --bg-hover: #dce4dc; --bg-active: #ccd6cc;
+    --border-color: #ccd6cc; --highlight-bg: #e6ece6; --highlight-border: #b0beb0;
+    --scrollbar-track: #dce4dc; --scrollbar-thumb: #c4cec4; --scrollbar-thumb-hover: #b0baa8;
+    --table-border: #ccd6cc; --table-header-bg: #e2e8e2; --placeholder-color: #b0baa8;
+}
+
+/* 暖灰褐 Warm Taupe */
+#app[data-theme='light'][data-color-theme='warm-taupe'] {
+    --accent: #9a8a7a; --accent-hover: #7a6a5a; --accent-bg: #e8e0d8;
+    --bg-primary: #f4f0ec; --bg-secondary: #fcfaf8; --bg-sidebar: #e8e2da;
+    --bg-card: #fcfaf8; --bg-hover: #e2dad2; --bg-active: #d4ccc4;
+    --border-color: #d4ccc4; --highlight-bg: #eee8e0; --highlight-border: #c4b8a8;
+    --scrollbar-track: #e2dad2; --scrollbar-thumb: #ccc4bc; --scrollbar-thumb-hover: #b8b0a8;
+    --table-border: #d4ccc4; --table-header-bg: #e8e2da; --placeholder-color: #b8b0a8;
+}
+
+/* 薰衣草灰 Lavender Gray（继承清单要求保留） */
+#app[data-theme='light'][data-color-theme='lavender-gray'] {
+    --accent: #958aa8; --accent-hover: #7a6e8c; --accent-bg: #e8e4f0;
+    --bg-primary: #f0eef5; --bg-secondary: #faf8fb; --bg-sidebar: #e5e2ed;
+    --bg-card: #faf8fb; --bg-hover: #dedae8; --bg-active: #d0cad8;
+    --border-color: #d0cad8; --highlight-bg: #e9e6f0; --highlight-border: #beb4c8;
+    --scrollbar-track: #dedae8; --scrollbar-thumb: #c8c2d0; --scrollbar-thumb-hover: #b4aec0;
+    --table-border: #d0cad8; --table-header-bg: #e5e2ed; --placeholder-color: #b4aec0;
+}
+
+/* 暖杏色 Warm Apricot */
+#app[data-theme='light'][data-color-theme='warm-apricot'] {
+    --accent: #b8957a; --accent-hover: #9a7a5e; --accent-bg: #f0e6da;
+    --bg-primary: #f5f0ea; --bg-secondary: #fdfaf6; --bg-sidebar: #ede5da;
+    --bg-card: #fdfaf6; --bg-hover: #e8ded0; --bg-active: #d8ccc0;
+    --border-color: #d8ccc0; --highlight-bg: #f2eae0; --highlight-border: #c8b8a4;
+    --scrollbar-track: #e8ded0; --scrollbar-thumb: #d0c4b8; --scrollbar-thumb-hover: #c0b0a4;
+    --table-border: #d8ccc0; --table-header-bg: #ede5da; --placeholder-color: #c0b0a4;
+}
+
+/* ---------- 莫兰迪皮肤 · 暗色强调色 ---------- */
+#app[data-theme='dark'][data-color-theme='dusty-rose'] {
+    --accent: #c4a49a; --accent-hover: #d8b8ae; --accent-bg: #332a26;
+}
+#app[data-theme='dark'][data-color-theme='misty-blue'] {
+    --accent: #9fb4c4; --accent-hover: #b8cad8; --accent-bg: #262e36;
+}
+#app[data-theme='dark'][data-color-theme='sage-green'] {
+    --accent: #9fb4a0; --accent-hover: #b8cbb8; --accent-bg: #262e28;
+}
+#app[data-theme='dark'][data-color-theme='warm-taupe'] {
+    --accent: #b3a291; --accent-hover: #c8b7a4; --accent-bg: #2e2a24;
+}
+#app[data-theme='dark'][data-color-theme='lavender-gray'] {
+    --accent: #a89cbc; --accent-hover: #c0b4d0; --accent-bg: #2a2630;
+}
+#app[data-theme='dark'][data-color-theme='warm-apricot'] {
+    --accent: #c4a486; --accent-hover: #d8b89a; --accent-bg: #332a20;
+}
+
+/* ---------- 高对比（a11y）—— 单一 hc 皮肤，自动跟随亮/暗 ---------- */
+#app[data-theme='light'][data-color-theme='hc'] {
+    --accent: #0057a0; --accent-hover: #003c70; --accent-bg: #dbe9f7;
+    --bg-primary: #ffffff; --bg-secondary: #ffffff; --bg-sidebar: #f2f2f2;
+    --bg-card: #ffffff; --bg-hover: #e0e0e0; --bg-active: #c9c9c9;
+    --border-color: #000000; --shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.28);
+    --text-primary: #000000; --text-secondary: #000000; --text-muted: #333333;
+    --scrollbar-track: #e0e0e0; --scrollbar-thumb: #666666; --scrollbar-thumb-hover: #333333;
+    --highlight-bg: #dbe9f7; --highlight-border: #0057a0;
+    --table-border: #000000; --table-header-bg: #f2f2f2; --placeholder-color: #555555;
+}
+
+#app[data-theme='dark'][data-color-theme='hc'] {
+    --accent: #4cc9f0; --accent-hover: #8ce0ff; --accent-bg: #002a3d;
+    --bg-primary: #000000; --bg-secondary: #000000; --bg-sidebar: #111111;
+    --bg-card: #000000; --bg-hover: #1a1a1a; --bg-active: #333333;
+    --border-color: #ffffff; --shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+    --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.95);
+    --text-primary: #ffffff; --text-secondary: #ffffff; --text-muted: #cccccc;
+    --scrollbar-track: #1a1a1a; --scrollbar-thumb: #999999; --scrollbar-thumb-hover: #ffffff;
+    --highlight-bg: #002a3d; --highlight-border: #4cc9f0;
+    --table-border: #ffffff; --table-header-bg: #111111; --placeholder-color: #bbbbbb;
+}
+
+/* ---------- 滚动条（Chromium + Firefox） ---------- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
