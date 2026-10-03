@@ -1,0 +1,20 @@
+# ---- 标识区（手写，扫描器不覆盖）----
+name: "Tea Project Manager"
+path: E:\Projects\Tea Project Manager
+type: backend
+category: "文件/系统工具"
+language: Go
+tech_stack: [gin]
+status: 进行中
+quality: 整洁
+description: "个人项目管理器（Tea PM 2.0）重构中：Go + gin 后端 + 原生 JS Web UI，统一管理 E:\\Projects 全部项目。"
+intent: "旧版 Python 三语 i18n CLI 的全面升级：从命令行工具演进为本地 Web UI + 分布式 .teaproject 配置的项目管理器。"
+tags: [项目管理, Go, "Web UI", 重构]
+ai: true
+
+# ---- 自动区（每次 scan 刷新）----
+# last_active / created / code_files / code_size_kb / total_size_mb / git / deps
+# （种子阶段不写，由首次 tea scan 刷新填充）
+
+# ---- 操作与备注（手写）----
+notes: "旧版 Python 三语 i18n CLI 已打包 build/main.exe；当前为 2.0 重构分支"

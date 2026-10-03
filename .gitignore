@@ -1,0 +1,10 @@
+# 构建产物
+tea.exe
+*.exe
+
+# 本地配置（首次运行自动生成默认值，不入库）
+config.yaml
+
+# Go 构建缓存 / 日志
+.gocache/
+*.log
