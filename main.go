@@ -424,6 +424,13 @@ func cmdCreate(args []string) {
 		os.Exit(1)
 	}
 	name = positional[0]
+	// R6-2: 多余位置参数（如 `tea create X web`）必须报错而非静默忽略，
+	// 否则用户以为 type=web 实际落盘 empty。
+	if len(positional) > 1 {
+		fmt.Fprintf(os.Stderr, "多余参数：%s\n用法: tea create <name> [--type empty|web|python] [--desc ...] [--no-readme]\n",
+			strings.Join(positional[1:], " "))
+		os.Exit(1)
+	}
 
 	cfg := loadCfg()
 	path, err := create.CreateProject(cfg.ProjectsRoot, name, typ, desc, !noReadme)
