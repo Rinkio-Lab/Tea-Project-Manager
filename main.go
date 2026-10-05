@@ -414,6 +414,10 @@ func cmdCreate(args []string) {
 			desc = strings.TrimPrefix(a, "--desc=")
 		case a == "--no-readme" || a == "-no-readme":
 			noReadme = true
+		case a == "--help" || a == "-h":
+			// R8: --help 显示用法并退出，绝不当作项目名创建
+			fmt.Fprintln(os.Stderr, "用法: tea create <name> [--type empty|web|python] [--desc ...] [--no-readme]")
+			os.Exit(0)
 		default:
 			positional = append(positional, a)
 		}
